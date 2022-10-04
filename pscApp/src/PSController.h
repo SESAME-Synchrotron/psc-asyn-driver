@@ -1,12 +1,14 @@
 #ifndef __PSC_H__
 #define __PSC_H__
 
-#include <stdint.h>
+#include <cstdint>
+#include <cstdio>
 
 #include <string>
 #include <iostream>
 #include <vector>
 #include <algorithm>
+#include <iterator>
 
 #include <epicsExport.h>
 #include <asynPortDriver.h>
@@ -19,16 +21,15 @@ using std::endl;
 using std::vector;
 using std::find;
 
-#define MAX_PS	3
+#define MAX_ADDRESSES		256
+#define PACKET_LENGTH		10
+#define COMMAND_READ		0x0001
+#define COMMAND_WRITE		0x0002
+#define PS_ADDRESS_SHIFT	14
+#define ADDRESS_PRIORITY	0x2 | (1 << PS_ADDRESS_SHIFT)
 
 typedef uint32_t u32;
 typedef uint16_t u16;
-
-typedef struct {
-	string name;
-	asynParamType type;
-	int address;
-} parameter_t;
 
 typedef struct
 {
@@ -48,8 +49,7 @@ public:
 	asynStatus writeFloat64(asynUser* asyn, epicsFloat64 value);
 
 protected:
-	vector<int> indices;
-	vector<parameter_t> parameters;
+	int indices[6];
 
 private:
 	asynUser* device;
