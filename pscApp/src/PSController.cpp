@@ -25,29 +25,28 @@ PSController::PSController(const char* name, const char* asyn_name)
 
 asynStatus PSController::readInt32(asynUser* asyn, epicsInt32* value)
 {
-	asynStatus status = performIO(asyn, reinterpret_cast<u32*>(value));
+	asynStatus status = performIO(asyn, (u32*) value);
 	return status;
 }
 
 asynStatus PSController::readFloat64(asynUser* asyn, epicsFloat64* value)
 {
-	asynStatus status = performIO(asyn, reinterpret_cast<u32*>((float*)value));
+	float temp = (float) *value;
+	asynStatus status = performIO(asyn, reinterpret_cast<u32*>(&temp));
+	*value = temp;
 	return status;
 }
 
 asynStatus PSController::writeInt32(asynUser* asyn, epicsInt32 value)
 {
-	u32* _value = (u32*) &value;
-	asynStatus status = performIO(asyn, _value);
+	asynStatus status = performIO(asyn, (u32*) &value);
 	return status;
 }
 
 asynStatus PSController::writeFloat64(asynUser* asyn, epicsFloat64 value)
 {
-	u32* raw = (u32*) malloc(sizeof(u32));
-	float _value = (float) value;
-	memcpy(raw, &_value, sizeof(u32));
-	asynStatus status = performIO(asyn, raw);
+	float temp = (float) value;
+	asynStatus status = performIO(asyn, reinterpret_cast<u32*>(&temp));
 	return status;
 }
 
