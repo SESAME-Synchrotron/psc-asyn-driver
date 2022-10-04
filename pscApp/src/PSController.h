@@ -3,6 +3,7 @@
 
 #include <cstdint>
 #include <cstdio>
+#include <cstring>
 
 #include <string>
 #include <iostream>
@@ -47,6 +48,8 @@ public:
 	asynStatus writeInt32(asynUser* asyn, epicsInt32 value);
 	asynStatus readFloat64(asynUser* asyn, epicsFloat64* value);
 	asynStatus writeFloat64(asynUser* asyn, epicsFloat64 value);
+
+	asynStatus performIO(asynUser* asyn, u32* value);
 
 protected:
 	int indices[6];
