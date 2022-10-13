@@ -15,12 +15,12 @@ PSController::PSController(const char* name, const char* asyn_name)
 		return;
 	}
 
-	createParam("indices_1", asynParamInt32,   &indices[0]);
-	createParam("indices_2", asynParamInt32,   &indices[1]);
-	createParam("indices_3", asynParamInt32,   &indices[2]);
-	createParam("indices_1", asynParamFloat64, &indices[4]);
-	createParam("indices_2", asynParamFloat64, &indices[5]);
-	createParam("indices_3", asynParamFloat64, &indices[6]);
+	createParam("i_1", asynParamInt32,   &ps[0]);
+	createParam("i_2", asynParamInt32,   &ps[1]);
+	createParam("i_3", asynParamInt32,   &ps[2]);
+	createParam("f_1", asynParamFloat64, &ps[4]);
+	createParam("f_2", asynParamFloat64, &ps[5]);
+	createParam("f_3", asynParamFloat64, &ps[6]);
 }
 
 asynStatus PSController::readInt32(asynUser* asyn, epicsInt32* value)
@@ -32,7 +32,7 @@ asynStatus PSController::readInt32(asynUser* asyn, epicsInt32* value)
 asynStatus PSController::readFloat64(asynUser* asyn, epicsFloat64* value)
 {
 	float temp = (float) *value;
-	asynStatus status = performIO(asyn, reinterpret_cast<u32*>(&temp));
+	asynStatus status = performIO(asyn, (u32*) &temp);
 	*value = temp;
 	return status;
 }
@@ -64,14 +64,25 @@ asynStatus PSController::performIO(asynUser* asyn, u32* value)
 
 	getParamName(function, &parameter_name);
 	getAddress(asyn, &address);
+    u16 ps = parameter_name[2] - 0x30;
 
-	tx.status  = (u16) 0x0000;
-	tx.command = (u16) COMMAND_READ;
-	tx.address = (u16) address;
-	tx.data    = (u32) 0;
-	status = pasynOctetSyncIO->writeRead(asyn, reinterpret_cast<char*>(&tx), PACKET_LENGTH, reinterpret_cast<char*>(&rx), PACKET_LENGTH, 2, &tx_bytes, &rx_bytes, &reason);
+	tx = { 
+		.status  = 0x0, 
+		.command = COMMAND_READ, 
+		.address = (u16) (address | (ps << PS_ADDRESS_SHIFT)), 
+		.data    = 0
+	};
+
+    char tx_array[PACKET_LENGTH];
+    char rx_array[PACKET_LENGTH];
+
+    memcpy(tx_array + 0, &(tx.status),  sizeof(u16));
+    memcpy(tx_array + 2, &(tx.command), sizeof(u16));
+    memcpy(tx_array + 2, &(tx.address), sizeof(u16));
+    memcpy(tx_array + 4, &(tx.data),    sizeof(u32));
+	status = pasynOctetSyncIO->writeRead(this->device, tx_array, PACKET_LENGTH, rx_array, PACKET_LENGTH, 1, &tx_bytes, &rx_bytes, &reason);
 	if(status != asynSuccess || tx_bytes != PACKET_LENGTH || rx_bytes != PACKET_LENGTH) {
-		printf("Could not perform IO | Name: %s | Address: %d\n", parameter_name, address);
+        printf("Status: %d | Reason: %d | Bytes: %lu - %lu\n", status, reason, tx_bytes, rx_bytes);
 		return asynError;
 	}
 

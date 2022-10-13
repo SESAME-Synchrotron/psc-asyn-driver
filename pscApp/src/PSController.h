@@ -22,6 +22,8 @@ using std::endl;
 using std::vector;
 using std::find;
 
+#pragma pack(2)
+
 #define MAX_ADDRESSES		256
 #define PACKET_LENGTH		10
 #define COMMAND_READ		0x0001
@@ -49,13 +51,12 @@ public:
 	asynStatus readFloat64(asynUser* asyn, epicsFloat64* value);
 	asynStatus writeFloat64(asynUser* asyn, epicsFloat64 value);
 
-	asynStatus performIO(asynUser* asyn, u32* value);
-
 protected:
-	int indices[6];
+	int ps[6];
 
 private:
 	asynUser* device;
+	asynStatus performIO(asynUser* asyn, u32* value);
 };
 
 #endif
