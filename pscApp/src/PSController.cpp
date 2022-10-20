@@ -45,12 +45,14 @@ asynStatus PSController::writeInt32(asynUser* asyn, epicsInt32 value)
 
 asynStatus PSController::writeFloat64(asynUser* asyn, epicsFloat64 value)
 {
-	float temp = (float) value;
-	asynStatus status = performIO(asyn, reinterpret_cast<u32*>(&temp));
+    setEthernetState(ETHERNET_ENABLE);
+    float temp = (float) value;
+    asynStatus status = performIO(asyn, reinterpret_cast<u32*>(&temp), COMMAND_WRITE);
+    setEthernetState(0x0);
 	return status;
 }
 
-asynStatus PSController::performIO(asynUser* asyn, u32* value)
+asynStatus PSController::performIO(asynUser* asyn, u32* value, command_t command)
 {
 	int address;
 	int status;
@@ -60,7 +62,9 @@ asynStatus PSController::performIO(asynUser* asyn, u32* value)
 	size_t rx_bytes;
 	const char* parameter_name;
 	packet_t tx;
-	packet_t rx;
+	packet_t rx; 
+    char tx_array[PACKET_LENGTH];
+    char rx_array[PACKET_LENGTH];
 
 	getParamName(function, &parameter_name);
 	getAddress(asyn, &address);
@@ -68,14 +72,10 @@ asynStatus PSController::performIO(asynUser* asyn, u32* value)
 
 	tx = { 
 		.status  = 0x0, 
-		.command = COMMAND_READ, 
+		.command = (u16) (command),
 		.address = (u16) (address | (ps << PS_ADDRESS_SHIFT)), 
-		.data    = 0
+		.data    = command == COMMAND_READ ? 0 : *value
 	};
-
-    char tx_array[PACKET_LENGTH];
-    char rx_array[PACKET_LENGTH];
-
     memcpy(tx_array + 0, &(tx.status),  sizeof(u16));
     memcpy(tx_array + 2, &(tx.command), sizeof(u16));
     memcpy(tx_array + 4, &(tx.address), sizeof(u16));
@@ -90,3 +90,30 @@ asynStatus PSController::performIO(asynUser* asyn, u32* value)
 	*value = rx.data;
 	return asynSuccess;
 }
+
+asynStatus PSController::setEthernetState(u32 state)
+{
+    int status;
+    int reason;
+    size_t tx_bytes;
+    size_t rx_bytes;
+    char tx_array[PACKET_LENGTH];
+    char rx_array[PACKET_LENGTH];
+	packet_t tx;
+
+    tx = {
+        .status  = 0x0,
+        .command = COMMAND_WRITE,
+        .address = ADDRESS_PRIORITY | (3 << PS_ADDRESS_SHIFT),
+        .data    = state,
+    };
+    memcpy(tx_array, &tx, sizeof(tx_array));
+	status = pasynOctetSyncIO->writeRead(this->device, tx_array, PACKET_LENGTH, rx_array, PACKET_LENGTH, 1, &tx_bytes, &rx_bytes, &reason);
+    if(status != asynSuccess || tx_bytes != PACKET_LENGTH || rx_bytes != PACKET_LENGTH) {
+        printf("Ethernet faile. Status: %d | Reason: %d | Bytes: %lu - %lu\n", status, reason, tx_bytes, rx_bytes);
+		return asynError;
+	}
+
+    return asynSuccess;
+}
+

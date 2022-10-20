@@ -26,13 +26,17 @@ using std::find;
 
 #define MAX_ADDRESSES		256
 #define PACKET_LENGTH		10
-#define COMMAND_READ		0x0001
-#define COMMAND_WRITE		0x0002
 #define PS_ADDRESS_SHIFT	14
-#define ADDRESS_PRIORITY	0x2 | (1 << PS_ADDRESS_SHIFT)
+#define ADDRESS_PRIORITY	0x2
+#define ETHERNET_ENABLE		0x1000000
 
 typedef uint32_t u32;
 typedef uint16_t u16;
+
+typedef enum {
+    COMMAND_READ  = 0x0001,
+    COMMAND_WRITE = 0x0002
+} command_t;
 
 typedef struct
 {
@@ -56,7 +60,8 @@ protected:
 
 private:
 	asynUser* device;
-	asynStatus performIO(asynUser* asyn, u32* value);
+	asynStatus performIO(asynUser* asyn, u32* value, command_t command = COMMAND_READ);
+    asynStatus setEthernetState(u32 state);
 };
 
 #endif
