@@ -18,9 +18,9 @@ PSController::PSController(const char* name, const char* asyn_name)
 	createParam("i_1", asynParamInt32,   &ps[0]);
 	createParam("i_2", asynParamInt32,   &ps[1]);
 	createParam("i_3", asynParamInt32,   &ps[2]);
-	createParam("f_1", asynParamFloat64, &ps[4]);
-	createParam("f_2", asynParamFloat64, &ps[5]);
-	createParam("f_3", asynParamFloat64, &ps[6]);
+	createParam("f_1", asynParamFloat64, &ps[3]);
+	createParam("f_2", asynParamFloat64, &ps[4]);
+	createParam("f_3", asynParamFloat64, &ps[5]);
 }
 
 asynStatus PSController::readInt32(asynUser* asyn, epicsInt32* value)
@@ -31,9 +31,9 @@ asynStatus PSController::readInt32(asynUser* asyn, epicsInt32* value)
 
 asynStatus PSController::readFloat64(asynUser* asyn, epicsFloat64* value)
 {
-	float temp = (float) *value;
-	asynStatus status = performIO(asyn, (u32*) &temp);
-	*value = temp;
+	u32 temp;
+	asynStatus status = performIO(asyn, &temp);
+	*value = *(float*) &temp;
 	return status;
 }
 
@@ -78,14 +78,15 @@ asynStatus PSController::performIO(asynUser* asyn, u32* value)
 
     memcpy(tx_array + 0, &(tx.status),  sizeof(u16));
     memcpy(tx_array + 2, &(tx.command), sizeof(u16));
-    memcpy(tx_array + 2, &(tx.address), sizeof(u16));
-    memcpy(tx_array + 4, &(tx.data),    sizeof(u32));
+    memcpy(tx_array + 4, &(tx.address), sizeof(u16));
+    memcpy(tx_array + 6, &(tx.data),    sizeof(u32));
 	status = pasynOctetSyncIO->writeRead(this->device, tx_array, PACKET_LENGTH, rx_array, PACKET_LENGTH, 1, &tx_bytes, &rx_bytes, &reason);
 	if(status != asynSuccess || tx_bytes != PACKET_LENGTH || rx_bytes != PACKET_LENGTH) {
         printf("Status: %d | Reason: %d | Bytes: %lu - %lu\n", status, reason, tx_bytes, rx_bytes);
 		return asynError;
 	}
 
+    memcpy(&rx, rx_array, sizeof(rx_array));
 	*value = rx.data;
 	return asynSuccess;
 }
