@@ -71,7 +71,7 @@ asynStatus PSController::performIO(asynUser* asyn, u32* value, command_t command
 
     getParamName(function, &parameter_name);
     getAddress(asyn, &address);
-    u16 ps = parameter_name[2] - 0x30;
+    u16 ps = parameter_name[ strlen(parameter_name) - 1 ] - 0x30;
 
     tx = { 
         .status  = 0x0, 
@@ -79,10 +79,11 @@ asynStatus PSController::performIO(asynUser* asyn, u32* value, command_t command
         .address = (u16) (address | (ps << PS_ADDRESS_SHIFT)), 
         .data    = command == COMMAND_READ ? 0 : *value
     };
-    memcpy(tx_array + 0, &(tx.status),  sizeof(u16));
-    memcpy(tx_array + 2, &(tx.command), sizeof(u16));
-    memcpy(tx_array + 4, &(tx.address), sizeof(u16));
-    memcpy(tx_array + 6, &(tx.data),    sizeof(u32));
+    // memcpy(tx_array + 0, &(tx.status),  sizeof(u16));
+    // memcpy(tx_array + 2, &(tx.command), sizeof(u16));
+    // memcpy(tx_array + 4, &(tx.address), sizeof(u16));
+    // memcpy(tx_array + 6, &(tx.data),    sizeof(u32));
+    memcpy(tx_array, &tx, sizeof(tx_array));
     status = pasynOctetSyncIO->writeRead(this->device, tx_array, PACKET_LENGTH, rx_array, PACKET_LENGTH, 1, &tx_bytes, &rx_bytes, &reason);
     if(status != asynSuccess || tx_bytes != PACKET_LENGTH || rx_bytes != PACKET_LENGTH) {
         printf("Status: %d | Reason: %d | Bytes: %lu - %lu\n", status, reason, tx_bytes, rx_bytes);
@@ -119,4 +120,3 @@ asynStatus PSController::setEthernetState(u32 state)
 
     return asynSuccess;
 }
-
