@@ -1,0 +1,10 @@
+record(ai, "$(PREFIX):getIload")
+{
+    field(DESC, "Read magnet load current")
+    field(DTYP, "asynFloat64")
+    field(INP,  "@asyn($(DEVICE) 144) f_$(PS))
+    field(PINI, "YES")
+    field(SCAN, ".1 second")
+    field(EGU,  "A")
+    field(PREC, "3")
+}
