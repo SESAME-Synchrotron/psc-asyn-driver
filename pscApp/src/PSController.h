@@ -24,8 +24,8 @@ using std::find;
 
 #pragma pack(2)
 
-#define MAX_ADDRESSES        256
-#define PACKET_LENGTH        10
+#define MAX_ADDRESSES       256
+#define PACKET_LENGTH       10
 #define PS_ADDRESS_SHIFT    14
 #define ADDRESS_PRIORITY    0x2
 #define ETHERNET_ENABLE     0x1000000
