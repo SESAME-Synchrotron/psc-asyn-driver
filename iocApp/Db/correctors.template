@@ -1,10 +1,218 @@
-record(ai, "$(PREFIX):getIload")
+
+# 
+# Setters
+#
+record(mbbo, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL)-PS$(PS):setCommand")
 {
-    field(DESC, "Read magnet load current")
+    alias("$(ALIAS):setCommand")
+    field(PINI, "NO")
+    field(DTYP, "asynInt32")
+    field(OUT,  "@asyn($(DEVICE) 128) i_$(PS)")
+    field(ZRVL, "0") field(ZRST, "Off")
+    field(ONVL, "1") field(ONST, "On")
+}
+
+record(longout, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL)-PS$(PS):clearFaults")
+{
+    alias("$(ALIAS):clearFaults")
+    field(PINI, "NO")
+    field(DTYP, "asynInt32")
+    field(OUT,  "@asyn($(DEVICE) 138) i_$(PS)")
+}
+
+record(ao, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL)-PS$(PS):setReference")
+{
+    alias("$(ALIAS):setReference")
+    field(PINI, "NO")
     field(DTYP, "asynFloat64")
-    field(INP,  "@asyn($(DEVICE) 144) f_$(PS))
-    field(PINI, "YES")
-    field(SCAN, ".1 second")
+    field(OUT,  "@asyn(PSC 175) f_$(PS)")
     field(EGU,  "A")
     field(PREC, "3")
 }
+
+record(mbbo, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL)-PS$(PS):setParameterAddress")
+{
+    alias("$(ALIAS):setParameterAddress")
+    field(DTYP, "asynInt32")
+    field(OUT,  "@asyn($(DEVICE) 184) i_$(PS)")
+    field(RVAL, "97")
+    field(PINI, "YES")
+    field(ZRVL, "97") field(ZRST, "Kp")
+    field(ONVL, "96") field(ONST, "Ki")
+    field(TWVL, "66") field(TWST, "didt")
+}
+
+record(ao, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL)-PS$(PS):setParameterData")
+{
+    alias("$(ALIAS):setParameterData")
+    field(DTYP, "asynFloat64")
+    field(OUT,  "@asyn($(DEVICE) 185) f_$(PS)")
+    field(PREC, "3")
+}
+
+#
+# Getters
+#
+record(ai, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL)-PS$(PS):getReference")
+{
+    alias("$(ALIAS):getReference")
+    field(DTYP, "asynFloat64")
+    field(INP,  "@asyn($(DEVICE) 175) f_$(PS)")
+    field(PREC, "3")
+    field(PINI, "YES")
+    field(SCAN, "1 second")
+}
+
+record(longin, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL)-PS$(PS):getParameterAddress")
+{
+    alias("$(ALIAS):getParameterAddress")
+    field(DTYP, "asynInt32")
+    field(INP,  "@asyn($(DEVICE) 184) i_$(PS)")
+    field(PINI, "YES")
+}
+
+record(ai, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL)-PS$(PS):getParameterData")
+{
+    alias("$(ALIAS):getParameterData")
+    field(DTYP, "asynFloat64")
+    field(INP,  "@asyn($(DEVICE) 185) f_$(PS)")
+    field(PREC, "3")
+    field(PINI, "YES")
+}
+
+record(ai, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL)-PS$(PS):getIload")
+{
+    alias("$(ALIAS):getIload")
+    field(SCAN, ".1 second")
+    field(DTYP, "asynFloat64")
+    field(INP,  "@asyn($(DEVICE) 153) f_$(PS)")
+    field(PREC, "3")
+    field(PINI, "YES")
+    field(EGU,  "A")
+}
+
+record(ai, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL)-PS$(PS):getVmon")
+{
+    alias("$(ALIAS):getVmon")
+    field(SCAN, "1 second")
+    field(DTYP, "asynFloat64")
+    field(INP,  "@asyn($(DEVICE) 145) f_$(PS)")
+    field(PREC, "3")
+    field(PINI, "YES")
+    field(EGU,  "V")
+}
+
+record(ai, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL)-PS$(PS):getRmon")
+{
+    alias("$(ALIAS):getRmon")
+    field(SCAN, "5 second")
+    field(DTYP, "asynFloat64")
+    field(INP,  "@asyn($(DEVICE) 146) f_$(PS)")
+    field(PREC, "3")
+    field(PINI, "YES")
+    field(EGU,  "Ohm")
+}
+
+record(ai, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL)-PS$(PS):getVbus")
+{
+    alias("$(ALIAS):getVbus")
+    field(SCAN, "5 second")
+    field(DTYP, "asynFloat64")
+    field(INP,  "@asyn($(DEVICE) 147) f_$(PS)")
+    field(PREC, "3")
+    field(PINI, "YES")
+    field(EGU,  "V")
+}
+
+record(longin, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL)-PS$(PS):getFaults")
+{
+    alias("$(ALIAS):getFaults")
+    field(SCAN, "1 second")
+    field(DTYP, "asynInt32")
+    field(INP,  "@asyn($(DEVICE) 138) i_$(PS)")
+    field(PINI, "YES")
+    field(HIGH, "1") field(HSV, "MAJOR")
+    field(LOW,  "0") field(LSV, "NO_ALARM")
+}
+
+record(mbbi, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL)-PS$(PS):getStateHandler")
+{
+    alias("$(ALIAS):getStateHandler")
+    field(SCAN, "1 second")
+    field(DTYP, "asynInt32")
+    field(INP,  "@asyn($(DEVICE) 129) i_$(PS)")
+    field(PINI, "YES")
+    field(ZRVL, "0")    field(ZRST, "Monitor")
+    field(ONVL, "1")    field(ONST, "Off")
+    field(TWVL, "2")    field(TWST, "On")
+    field(THVL, "3")    field(THST, "ADC Cal")
+    field(FRVL, "4")    field(FRST, "Locked")
+    field(FVVL, "5")    field(FVST, "Transient")
+    field(SXVL, "6")    field(SXST, "Off-locked")
+    field(SVVL, "7")    field(SVST, "Undefined")
+    field(EIVL, "8")    field(EIST, "Download")
+    field(NIVL, "9")    field(NIST, "Save")
+    field(TEVL, "10")    field(TEST, "Undefined")
+    field(ELVL, "11")    field(ELST, "Modify")
+}
+
+record(ai, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL)-PS$(PS):getTemperature")
+{
+    alias("$(ALIAS):getTemperature")
+    field(SCAN, "60 second")
+    field(DTYP, "asynFloat64")
+    field(INP,  "@asyn($(DEVICE) 208) i_$(PS)")
+    field(PREC, "3")
+    field(HIGH, "40") field(HSV,  "MINOR")
+    field(HIHI, "50") field(HHSV, "MAJOR")
+    field(EGU,  "C")
+}
+
+record(longin, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):getPriority")
+{
+    alias("$(ALIAS):getPriority")
+    field(DTYP, "asynInt32")
+    field(INP,  "@asyn($(DEVICE) 2) i_$(PS)")
+    field(PINI, "YES")
+}
+
+record(longin, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):getLabel")
+{
+    alias("$(ALIAS):getLabel")
+    field(DTYP, "asynInt32")
+    field(INP,  "@asyn($(DEVICE) 33) i_$(PS)")
+    field(PINI, "YES")
+}
+
+record(longin, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):getApplication")
+{
+    alias("$(ALIAS):getApplication")
+    field(DTYP, "asynInt32")
+    field(INP,  "@asyn($(DEVICE) 34) i_$(PS)")
+    field(PINI, "YES")
+}
+
+record(longin, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):getDSPVersion")
+{
+    alias("$(ALIAS):getDSPVersion")
+    field(DTYP, "asynInt32")
+    field(INP,  "@asyn($(DEVICE) 7) i_$(PS)")
+    field(PINI, "YES")
+}
+
+record(ai, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):getNIOSVersion")
+{
+    alias("$(ALIAS):getNIOSVersion")
+    field(DTYP, "asynFloat64")
+    field(INP,  "@asyn($(DEVICE) 8) f_$(PS)")
+    field(PINI, "YES")
+}
+
+record(longin, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):getFPGAVersion")
+{
+    alias("$(ALIAS):getFPGAVersion")
+    field(DTYP, "asynInt32")
+    field(INP,  "@asyn($(DEVICE) 9) f_$(PS)")
+    field(PINI, "YES")
+}
+

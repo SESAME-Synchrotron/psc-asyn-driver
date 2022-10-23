@@ -1,0 +1,945 @@
+#
+# Setters
+#
+record(mbbo, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):setCommand")
+{
+    alias("$(ALIAS):setCommand")
+    field(DTYP, "asynInt32")
+    field(OUT,  "@asyn($(DEVICE) 16) i_$(PS)")
+    field(ZRVL, "0")   field(ZRST, "Off")
+    field(ONVL, "1")   field(ONST, "Standby")
+    field(TWVL, "2")   field(TWST, "On")
+    field(THVL, "3")   field(THST, "Fault")
+    field(FRVL, "4")   field(FRST, "Reset")
+    field(FVVL, "5")   field(FVST, "Openloop")
+    field(SXVL, "6")   field(SXST, "Semiauto")
+    field(SVVL, "7")   field(SVST, "Auto")
+    field(EIVL, "8")   field(EIST, "Manual")
+    field(NIVL, "9")   field(NIST, "Stop")
+    field(TEVL, "10")  field(TEST, "Pause")
+    field(ELVL, "11")  field(ELST, "Resume")
+    field(TVVL, "12")  field(TVST, "Trigger")
+    field(TTVL, "13")  field(TTST, "Start Log")
+    field(FTVL, "14")  field(FTST, "Stop Log")
+    field(FFVL, "15")  field(FFST, "Skip")
+}
+
+record(ao, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):setKp")
+{
+    alias("$(ALIAS):setKp")
+    field(DTYP, "asynFloat64")
+    field(OUT,  "@asyn($(DEVICE) 58) f_$(PS)")
+    field(PREC, "3")
+}
+
+record(ao, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):setKi")
+{
+    alias("$(ALIAS):setKi")
+    field(DTYP, "asynFloat64")
+    field(OUT,  "@asyn($(DEVICE) 59) f_$(PS)")
+    field(PREC, "3")
+}
+
+record(ao, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):setI2vGain")
+{
+    alias("$(ALIAS):setI2vGain")
+    field(DTYP, "asynFloat64")
+    field(OUT,  "@asyn($(DEVICE) 60) f_$(PS)")
+    field(PREC, "3")
+}
+
+record(ao, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):setOffsetError")
+{
+    alias("$(ALIAS):setOffsetError")
+    field(DTYP, "asynFloat64")
+    field(OUT,  "@asyn($(DEVICE) 61) f_$(PS)")
+    field(PREC, "3")
+}
+
+record(ao, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):setGainError")
+{
+    alias("$(ALIAS):setGainError")
+    field(DTYP, "asynFloat64")
+    field(OUT,  "@asyn($(DEVICE) 62) f_$(PS)")
+    field(PREC, "3")
+}
+
+record(ao, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):setMaxIref")
+{
+    alias("$(ALIAS):setMaxIref")
+    field(DTYP, "asynFloat64")
+    field(OUT,  "@asyn($(DEVICE) 63) f_$(PS)")
+    field(PREC, "3")
+}
+
+record(ao, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):setMinIref")
+{
+    alias("$(ALIAS):setMinIref")
+    field(DTYP, "asynFloat64")
+    field(OUT,  "@asyn($(DEVICE) 64) f_$(PS)")
+    field(PREC, "3")
+}
+
+record(ao, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):setMaxdIdt")
+{
+    alias("$(ALIAS):setMaxdIdt")
+    field(DTYP, "asynFloat64")
+    field(OUT,  "@asyn($(DEVICE) 65) f_$(PS)")
+    field(PREC, "3")
+}
+
+record(ao, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):setMindIdt")
+{
+    alias("$(ALIAS):setMindIdt")
+    field(DTYP, "asynFloat64")
+    field(OUT,  "@asyn($(DEVICE) 66) f_$(PS)")
+    field(PREC, "3")
+}
+
+record(ao, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):setMaxEtotal")
+{
+    alias("$(ALIAS):setMaxEtotal")
+    field(DTYP, "asynFloat64")
+    field(OUT,  "@asyn($(DEVICE) 67) f_$(PS)")
+    field(PREC, "3")
+}
+
+record(ao, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):setMinEtotal")
+{
+    alias("$(ALIAS):setMinEtotal")
+    field(DTYP, "asynFloat64")
+    field(OUT,  "@asyn($(DEVICE) 68) f_$(PS)")
+    field(PREC, "3")
+}
+
+record(mbbo, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):setMode")
+{
+    alias("$(ALIAS):setMode")
+    field(DTYP, "asynInt32")
+    field(OUT,  "@asyn($(DEVICE) 99) i_$(PS)")
+    field(ZRVL, "0")    field(ZRST, "DC")
+    field(ONVL, "1")    field(ONST, "Waveform")
+}
+
+record(ao, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):setReference")
+{
+    alias("$(ALIAS):setReference")
+    field(DTYP, "asynFloat64")
+    field(OUT,  "@asyn($(DEVICE) 144) f_$(PS)")
+    field(PREC, "3")
+    field(EGU,  "A")
+}
+
+record(longout, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):setWaveformNext")
+{
+    alias("$(ALIAS):setWaveformNext")
+    field(DTYP, "asynInt32")
+    field(OUT,  "@asyn($(DEVICE) 162) i_$(PS)")
+}
+
+record(longout, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):setWaveformStart")
+{
+    alias("$(ALIAS):setWaveformStart")
+    field(DTYP, "asynInt32")
+    field(OUT,  "@asyn($(DEVICE) 163) i_$(PS)")
+}
+
+record(longout, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):setWaveformCycle")
+{
+    alias("$(ALIAS):setWaveformCycle")
+    field(DTYP, "asynInt32")
+    field(OUT,  "@asyn($(DEVICE) 164) i_$(PS)")
+}
+
+record(longout, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):setWaveform0Size")
+{
+    alias("$(ALIAS):setWaveform0Size")
+    field(DTYP, "asynInt32")
+    field(OUT,  "@asyn($(DEVICE) 165) i_$(PS)")
+}
+
+record(longout, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):setWaveform1Size")
+{
+    alias("$(ALIAS):setWaveform1Size")
+    field(DTYP, "asynInt32")
+    field(OUT,  "@asyn($(DEVICE) 166) i_$(PS)")
+}
+
+record(longout, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):setWaveform2Size")
+{
+    alias("$(ALIAS):setWaveform2Size")
+    field(DTYP, "asynInt32")
+    field(OUT,  "@asyn($(DEVICE) 167) i_$(PS)")
+}
+
+record(longout, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):setWaveform3Size")
+{
+    alias("$(ALIAS):setWaveform3Size")
+    field(DTYP, "asynInt32")
+    field(OUT,  "@asyn($(DEVICE) 168) i_$(PS)")
+}
+
+record(ao, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):setWaveform0Final")
+{
+    alias("$(ALIAS):setWaveform0Final")
+    field(DTYP, "asynFloat64")
+    field(OUT,  "@asyn($(DEVICE) 169) f_$(PS)")
+    field(PREC, "3")
+}
+
+record(ao, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):setWaveform1Final")
+{
+    alias("$(ALIAS):setWaveform1Final")
+    field(DTYP, "asynFloat64")
+    field(OUT,  "@asyn($(DEVICE) 170) f_$(PS)")
+    field(PREC, "3")
+}
+
+record(ao, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):setWaveform2Final")
+{
+    alias("$(ALIAS):setWaveform2Final")
+    field(DTYP, "asynFloat64")
+    field(OUT,  "@asyn($(DEVICE) 171) f_$(PS)")
+    field(PREC, "3")
+}
+
+record(ao, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):setWaveform3Final")
+{
+    alias("$(ALIAS):setWaveform3Final")
+    field(DTYP, "asynFloat64")
+    field(OUT,  "@asyn($(DEVICE) 172) f_$(PS)")
+    field(PREC, "3")
+}
+
+record(longout, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):setWaveform0Period")
+{
+    alias("$(ALIAS):setWaveform0Period")
+    field(DTYP, "asynInt32")
+    field(OUT,  "@asyn($(DEVICE) 173) i_$(PS)")
+}
+
+record(longout, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):setWaveform1Period")
+{
+    alias("$(ALIAS):setWaveform1Period")
+    field(DTYP, "asynInt32")
+    field(OUT,  "@asyn($(DEVICE) 174) i_$(PS)")
+}
+
+record(longout, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):setWaveform2Period")
+{
+    alias("$(ALIAS):setWaveform2Period")
+    field(DTYP, "asynInt32")
+    field(OUT,  "@asyn($(DEVICE) 175) i_$(PS)")
+}
+
+record(longout, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):setWaveform3Period")
+{
+    alias("$(ALIAS):setWaveform3Period")
+    field(DTYP, "asynInt32")
+    field(OUT,  "@asyn($(DEVICE) 176) i_$(PS)")
+}
+
+record(longout, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):setWaveform0Top")
+{
+    alias("$(ALIAS):setWaveform0Top")
+    field(DTYP, "asynInt32")
+    field(OUT,  "@asyn($(DEVICE) 177) i_$(PS)")
+}
+
+record(longout, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):setWaveform1Top")
+{
+    alias("$(ALIAS):setWaveform1Top")
+    field(DTYP, "asynInt32")
+    field(OUT,  "@asyn($(DEVICE) 178) i_$(PS)")
+}
+
+record(longout, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):setWaveform2Top")
+{
+    alias("$(ALIAS):setWaveform2Top")
+    field(DTYP, "asynInt32")
+    field(OUT,  "@asyn($(DEVICE) 179) i_$(PS)")
+}
+
+record(longout, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):setWaveform3Top")
+{
+    alias("$(ALIAS):setWaveform3Top")
+    field(DTYP, "asynInt32")
+    field(OUT,  "@asyn($(DEVICE) 180) i_$(PS)")
+}
+
+record(ao, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):setMaxPcoVout")
+{
+    alias("$(ALIAS):setMaxPcoVout")
+    field(DTYP, "asynFloat64")
+    field(OUT,  "@asyn($(DEVICE) 185) f_$(PS)")
+    field(PREC, "3")
+}
+
+record(ao, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):setMaxPcoIout")
+{
+    alias("$(ALIAS):setMaxPcoIout")
+    field(DTYP, "asynFloat64")
+    field(OUT,  "@asyn($(DEVICE) 186) f_$(PS)")
+    field(PREC, "3")
+}
+
+record(ao, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):setInterlockVmon")
+{
+    alias("$(ALIAS):setInterlockVmon")
+    field(DTYP, "asynFloat64")
+    field(OUT,  "@asyn($(DEVICE) 187) f_$(PS)")
+    field(PREC, "3")
+}
+
+record(ao, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):setInterlockIload")
+{
+    alias("$(ALIAS):setInterlockIload")
+    field(DTYP, "asynFloat64")
+    field(OUT,  "@asyn($(DEVICE) 188) f_$(PS)")
+    field(PREC, "3")
+}
+
+record(ao, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):setInterlockIearth")
+{
+    alias("$(ALIAS):setInterlockIearth")
+    field(DTYP, "asynFloat64")
+    field(OUT,  "@asyn($(DEVICE) 189) f_$(PS)")
+    field(PREC, "3")
+}
+
+record(ao, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):setInterlockdIdt")
+{
+    alias("$(ALIAS):setInterlockdIdt")
+    field(DTYP, "asynFloat64")
+    field(OUT,  "@asyn($(DEVICE) 201) f_$(PS)")
+    field(PREC, "3")
+}
+
+record(ao, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):setInterlockError")
+{
+    alias("$(ALIAS):setInterlockError")
+    field(DTYP, "asynFloat64")
+    field(OUT,  "@asyn($(DEVICE) 202) f_$(PS)")
+    field(PREC, "3")
+}
+
+record(ao, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):setInterlockTemperature")
+{
+    alias("$(ALIAS):setInterlockTemperature")
+    field(DTYP, "asynFloat64")
+    field(OUT,  "@asyn($(DEVICE) 203) f_$(PS)")
+    field(PREC, "3")
+}
+
+record(longout, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):setInterlockMask")
+{
+    alias("$(ALIAS):setInterlockMask")
+    field(DTYP, "asynInt32")
+    field(OUT,  "@asyn($(DEVICE) 97) i_$(PS)")
+}
+
+record(longout, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):reset")
+{
+    alias("$(ALIAS):reset")
+    field(DTYP, "asynInt32")
+    field(OUT,  "@asyn($(DEVICE) 5) i_$(PS)")
+    field(VAL,  "0")
+}
+
+record(ao, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):setEmax")
+{
+    alias("$(ALIAS):setEmax")
+    field(DTYP, "asynFloat64")
+    field(OUT,  "@asyn($(DEVICE) 206) f_$(PS)")
+    field(PREC, "3")
+}
+
+#
+# Getters
+#
+record(ai, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):getVersion")
+{
+    alias("$(ALIAS):getVersion")
+    field(SCAN, "5 second")
+    field(DTYP, "asynFloat64")
+    field(INP,  "@asyn($(DEVICE) 13) f_$(PS)")
+    field(PREC, "3")
+    field(PINI, "YES")
+}
+
+record(longin, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):getRevision")
+{
+    alias("$(ALIAS):getRevision")
+    field(SCAN, "5 second")
+    field(DTYP, "asynInt32")
+    field(INP,  "@asyn($(DEVICE) 14) i_$(PS)")
+    field(PINI, "YES")
+}
+
+record(mbbi, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):getCommand")
+{
+    alias("$(ALIAS):getCommand")
+    field(SCAN, "5 second")
+    field(DTYP, "asynInt32")
+    field(INP,  "@asyn($(DEVICE) 16) i_$(PS)")
+    field(PINI, "YES")
+    field(ZRVL, "0")    field(ZRST, "Off")
+    field(ONVL, "1")    field(ONST, "Standby")
+    field(TWVL, "2")    field(TWST, "On")
+    field(THVL, "3")    field(THST, "Fault")
+    field(FRVL, "4")    field(FRST, "Reset")
+    field(FVVL, "5")    field(FRST, "Openloop")
+    field(SXVL, "6")    field(FVST, "Semiauto")
+    field(SVVL, "7")    field(SXST, "Auto")
+    field(EIVL, "8")    field(EIST, "Manual")
+    field(NIVL, "9")    field(NIST, "Stop")
+    field(TEVL, "10")    field(TEST, "Pause")
+    field(ELVL, "11")    field(ELST, "Resume")
+    field(TVVL, "12")    field(TVST, "Trigger")
+    field(TTVL, "13")    field(TTST, "Start Log")
+    field(FTVL, "14")    field(FTST, "Stop Log")
+    field(FFVL, "15")    field(FFST, "Skip")
+}
+
+record(ai, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):getKp")
+{
+    alias("$(ALIAS):getKp")
+    field(SCAN, "5 second")
+    field(DTYP, "asynFloat64")
+    field(INP,  "@asyn($(DEVICE) 58) f_$(PS)")
+    field(PREC, "3")
+    field(PINI, "YES")
+}
+
+record(ai, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):getKi")
+{
+    alias("$(ALIAS):getKi")
+    field(SCAN, "5 second")
+    field(DTYP, "asynFloat64")
+    field(INP,  "@asyn($(DEVICE) 59) f_$(PS)")
+    field(PREC, "3")
+    field(PINI, "YES")
+}
+
+record(ai, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):getI2vGain")
+{
+    alias("$(ALIAS):getI2vGain")
+    field(SCAN, "5 second")
+    field(DTYP, "asynFloat64")
+    field(INP,  "@asyn($(DEVICE) 60) f_$(PS)")
+    field(PREC, "3")
+    field(PINI, "YES")
+}
+
+record(ai, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):getOffsetError")
+{
+    alias("$(ALIAS):getOffsetError")
+    field(SCAN, "5 second")
+    field(DTYP, "asynFloat64")
+    field(INP,  "@asyn($(DEVICE) 61) f_$(PS)")
+    field(PREC, "3")
+    field(PINI, "YES")
+}
+
+record(ai, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):getGainError")
+{
+    alias("$(ALIAS):getGainError")
+    field(SCAN, "5 second")
+    field(DTYP, "asynFloat64")
+    field(INP,  "@asyn($(DEVICE) 62) f_$(PS)")
+    field(PREC, "3")
+    field(PINI, "YES")
+}
+
+record(ai, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):getMaxIref")
+{
+    alias("$(ALIAS):getMaxIref")
+    field(SCAN, "5 second")
+    field(DTYP, "asynFloat64")
+    field(INP,  "@asyn($(DEVICE) 63) f_$(PS)")
+    field(PREC, "3")
+    field(PINI, "YES")
+}
+
+record(ai, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):getMinIref")
+{
+    alias("$(ALIAS):getMinIref")
+    field(SCAN, "5 second")
+    field(DTYP, "asynFloat64")
+    field(INP,  "@asyn($(DEVICE) 64) f_$(PS)")
+    field(PREC, "3")
+    field(PINI, "YES")
+}
+
+record(ai, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):getMaxdIdt")
+{
+    alias("$(ALIAS):getMaxdIdt")
+    field(SCAN, "5 second")
+    field(DTYP, "asynFloat64")
+    field(INP,  "@asyn($(DEVICE) 65) f_$(PS)")
+    field(PREC, "3")
+    field(PINI, "YES")
+}
+
+record(ai, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):getMindIdt")
+{
+    alias("$(ALIAS):getMindIdt")
+    field(SCAN, "5 second")
+    field(DTYP, "asynFloat64")
+    field(INP,  "@asyn($(DEVICE) 66) f_$(PS)")
+    field(PREC, "3")
+    field(PINI, "YES")
+}
+
+record(ai, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):getMaxEtotal")
+{
+    alias("$(ALIAS):getMaxEtotal")
+    field(SCAN, "5 second")
+    field(DTYP, "asynFloat64")
+    field(INP,  "@asyn($(DEVICE) 67) f_$(PS)")
+    field(PREC, "3")
+    field(PINI, "YES")
+}
+
+record(ai, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):getMinEtotal")
+{
+    alias("$(ALIAS):getMinEtotal")
+    field(SCAN, "5 second")
+    field(DTYP, "asynFloat64")
+    field(INP,  "@asyn($(DEVICE) 68) f_$(PS)")
+    field(PREC, "3")
+    field(PINI, "YES")
+}
+
+record(mbbi, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):getMode")
+{
+    alias("$(ALIAS):getMode")
+    field(SCAN, "5 second")
+    field(DTYP, "asynInt32")
+    field(INP,  "@asyn($(DEVICE) 99) i_$(PS)")
+    field(PINI, "YES")
+    field(ZRVL, "0") field(ZRST, "DC")       field(ZRSV, "MAJOR")
+    field(ONVL, "1") field(ONST, "Waveform") field(ONSV, "NO_ALARM")
+}
+
+record(longin, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):getSlowInputs")
+{
+    alias("$(ALIAS):getSlowInputs")
+    field(SCAN, "1 second" )
+    field(DTYP, "asynInt32")
+    field(INP,  "@asyn($(DEVICE) 112) i_$(PS)")
+    field(PINI, "YES")
+}
+
+record(mbbi, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):getStateHandler")
+{
+    alias("$(ALIAS):getStateHandler")
+    field(SCAN, "1 second" )
+    field(DTYP, "asynInt32")
+    field(INP,  "@asyn($(DEVICE) 117) i_$(PS)")
+    field(PINI, "YES")
+    field(ZRVL, "0") field(ZRST, "Off")       field(ZRSV, "NO_ALARM")
+    field(ONVL, "1") field(ONST, "Standby")   field(ONSV, "NO_ALARM")
+    field(TWVL, "2") field(TWST, "On")        field(TWSV, "NO_ALARM")
+    field(THVL, "3") field(THST, "Fault")     field(THSV, "MAJOR")
+    field(FRVL, "4") field(FRST, "Openloop")  field(FRSV, "NO_ALARM")
+    field(FVVL, "5") field(FVST, "Transient") field(FVSV, "MAJOR")
+}
+
+record(mbbi, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):getStateSequencer")
+{
+    alias("$(ALIAS):getStateSequencer")
+    field(SCAN, ".1 second" )
+    field(DTYP, "asynInt32")
+    field(INP,  "@asyn($(DEVICE) 118) i_$(PS)")
+    field(PINI, "YES")
+    field(ZRVL, "0")    field(ZRST, "Idle")
+    field(ONVL, "1")    field(ONST, "DC")
+    field(TWVL, "2")    field(TWST, "Armed")
+    field(THVL, "3")    field(THST, "Semiauto")
+    field(FRVL, "4")    field(FRST, "Semiauto Active")
+    field(FVVL, "5")    field(FVST, "Auto")
+    field(SXVL, "6")    field(SXST, "Auto Active")
+    field(SVVL, "7")    field(SVST, "Manual")
+    field(EIVL, "8")    field(EIST, "Manual Active")
+}
+
+record(ai, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):getTemperatureCc")
+{
+    alias("$(ALIAS):getTemperatureCc")
+    field(SCAN, "60 second" )
+    field(DTYP, "asynFloat64")
+    field(INP,  "@asyn($(DEVICE) 123) f_$(PS)")
+    field(PREC, "3")
+    field(PINI, "YES")
+    field(HIGH, "40") field(HSV,  "MINOR")
+    field(HIHI, "50") field(HHSV, "MAJOR")
+}
+
+record(ai, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):getTemperatureIdac")
+{
+    alias("$(ALIAS):getTemperatureIdac")
+    field(SCAN, "60 second" )
+    field(DTYP, "asynFloat64")
+    field(INP,  "@asyn($(DEVICE) 124) f_$(PS)")
+    field(PREC, "3")
+    field(PINI, "YES")
+    field(HIGH, "40") field(HSV,  "MINOR")
+    field(HIHI, "50") field(HHSV, "MAJOR")
+}
+
+record(longin, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):getLogIndex")
+{
+    alias("$(ALIAS):getLogIndex")
+    field(SCAN, "5 second")
+    field(DTYP, "asynFloat64")
+    field(INP,  "@asyn($(DEVICE) 125) f_$(PS)")
+}
+
+record(ai, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):getTemperatureAdc")
+{
+    alias("$(ALIAS):getTemperatureAdc")
+    field(SCAN, "60 second" )
+    field(DTYP, "asynInt32")
+    field(INP,  "@asyn($(DEVICE) 182) i_$(PS)")
+    field(PREC, "3")
+    field(PINI, "YES")
+}
+
+record(ai, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):getReference")
+{
+    alias("$(ALIAS):getReference")
+    field(SCAN, "5 second")
+    field(DTYP, "asynFloat64")
+    field(INP,  "@asyn($(DEVICE) 144) f_$(PS)")
+    field(PREC, "3")
+    field(PINI, "YES")
+}
+
+record(ai, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):getIload")
+{
+    alias("$(ALIAS):getIload")
+    field(SCAN, ".1 second" )
+    field(DTYP, "asynFloat64")
+    field(INP,  "@asyn($(DEVICE) 148) f_$(PS)")
+    field(PREC, "3")
+    field(PINI, "YES")
+    field(ADEL, "0.001")
+    field(EGU,  "A")
+}
+
+record(ai, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):getVmon")
+{
+    alias("$(ALIAS):getVmon")
+    field(SCAN, ".1 second" )
+    field(DTYP, "asynFloat64")
+    field(INP,  "@asyn($(DEVICE) 158) f_$(PS)")
+    field(PREC, "3")
+    field(PINI, "YES")
+    field(EGU,  "V")
+}
+
+record(ai, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):getRmon")
+{
+    alias("$(ALIAS):getRmon")
+    field(SCAN, "1 second" )
+    field(DTYP, "asynFloat64")
+    field(INP,  "@asyn($(DEVICE) 160) f_$(PS)")
+    field(PREC, "3")
+    field(PINI, "YES")
+}
+
+record(ai, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):getIearth")
+{
+    alias("$(ALIAS):getIearth")
+    field(SCAN, ".1 second" )
+    field(DTYP, "asynFloat64")
+    field(INP,  "@asyn($(DEVICE) 161) f_$(PS)")
+    field(PREC, "3")
+    field(PINI, "YES")
+    field(EGU,  "A")
+}
+
+record(longin, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):getWaveformNext")
+{
+    alias("$(ALIAS):getWaveformNext")
+    field(SCAN, ".1 second")
+    field(DTYP, "asynInt32")
+    field(INP,  "@asyn($(DEVICE) 162) i_$(PS)")
+    field(PINI, "YES")
+}
+
+record(longin, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):getWaveformStart")
+{
+    alias("$(ALIAS):getWaveformStart")
+    field(SCAN, "1 second")
+    field(DTYP, "asynInt32")
+    field(INP,  "@asyn($(DEVICE) 163) i_$(PS)")
+    field(PINI, "YES")
+}
+
+record(longin, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):getWaveformCycle")
+{
+    alias("$(ALIAS):getWaveformCycle")
+    field(SCAN, "1 second")
+    field(DTYP, "asynInt32")
+    field(INP,  "@asyn($(DEVICE) 164) i_$(PS)")
+    field(PINI, "YES")
+}
+
+record(longin, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):getWaveform0Size")
+{
+    alias("$(ALIAS):getWaveform0Size")
+    field(SCAN, "5 second")
+    field(DTYP, "asynInt32")
+    field(INP,  "@asyn($(DEVICE) 165) i_$(PS)")
+    field(PINI, "YES")
+}
+
+record(longin, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):getWaveform1Size")
+{
+    alias("$(ALIAS):getWaveform1Size")
+    field(SCAN, "5 second")
+    field(DTYP, "asynInt32")
+    field(INP,  "@asyn($(DEVICE) 166) i_$(PS)")
+    field(PINI, "YES")
+}
+
+record(longin, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):getWaveform2Size")
+{
+    alias("$(ALIAS):getWaveform2Size")
+    field(SCAN, "5 second")
+    field(DTYP, "asynInt32")
+    field(INP,  "@asyn($(DEVICE) 167) i_$(PS)")
+    field(PINI, "YES")
+}
+
+record(longin, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):getWaveform3Size")
+{
+    alias("$(ALIAS):getWaveform3Size")
+    field(SCAN, "5 second")
+    field(DTYP, "asynInt32")
+    field(INP,  "@asyn($(DEVICE) 168) i_$(PS)")
+    field(PINI, "YES")
+}
+
+record(ai, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):getWaveform0Final")
+{
+    alias("$(ALIAS):getWaveform0Final")
+    field(SCAN, "5 second")
+    field(DTYP, "asynFloat64")
+    field(INP,  "@asyn($(DEVICE) 169) f_$(PS)")
+    field(PREC, "3")
+    field(PINI, "YES")
+}
+
+record(ai, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):getWaveform1Final")
+{
+    alias("$(ALIAS):getWaveform1Final")
+    field(SCAN, "5 second")
+    field(DTYP, "asynFloat64")
+    field(INP,  "@asyn($(DEVICE) 170) f_$(PS)")
+    field(PREC, "3")
+    field(PINI, "YES")
+}
+
+record(ai, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):getWaveform2Final")
+{
+    alias("$(ALIAS):getWaveform2Final")
+    field(SCAN, "5 second")
+    field(DTYP, "asynFloat64")
+    field(INP,  "@asyn($(DEVICE) 171) f_$(PS)")
+    field(PREC, "3")
+    field(PINI, "YES")
+}
+
+record(ai, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):getWaveform3Final")
+{
+    alias("$(ALIAS):getWaveform3Final")
+    field(SCAN, "5 second")
+    field(DTYP, "asynFloat64")
+    field(INP,  "@asyn($(DEVICE) 172) f_$(PS)")
+    field(PREC, "3")
+    field(PINI, "YES")
+}
+
+record(longin, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):getWaveform0Period")
+{
+    alias("$(ALIAS):getWaveform0Period")
+    field(SCAN, "5 second")
+    field(DTYP, "asynInt32")
+    field(INP,  "@asyn($(DEVICE) 173) i_$(PS)")
+    field(PINI, "YES")
+}
+
+record(longin, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):getWaveform1Period")
+{
+    alias("$(ALIAS):getWaveform1Period")
+    field(SCAN, "5 second")
+    field(DTYP, "asynInt32")
+    field(INP,  "@asyn($(DEVICE) 174) i_$(PS)")
+    field(PINI, "YES")
+}
+
+record(longin, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):getWaveform2Period")
+{
+    alias("$(ALIAS):getWaveform2Period")
+    field(SCAN, "5 second")
+    field(DTYP, "asynInt32")
+    field(INP,  "@asyn($(DEVICE) 175) i_$(PS)")
+    field(PINI, "YES")
+}
+
+record(longin, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):getWaveform3Period")
+{
+    alias("$(ALIAS):getWaveform3Period")
+    field(SCAN, "5 second")
+    field(DTYP, "asynInt32")
+    field(INP,  "@asyn($(DEVICE) 176) i_$(PS)")
+    field(PINI, "YES")
+}
+
+record(longin, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):getWaveform0Top")
+{
+    alias("$(ALIAS):getWaveform0Top")
+    field(SCAN, "5 second")
+    field(DTYP, "asynInt32")
+    field(INP,  "@asyn($(DEVICE) 177) i_$(PS)")
+    field(PINI, "YES")
+}
+
+record(longin, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):getWaveform1Top")
+{
+    alias("$(ALIAS):getWaveform1Top")
+    field(SCAN, "5 second")
+    field(DTYP, "asynInt32")
+    field(INP,  "@asyn($(DEVICE) 178) i_$(PS)")
+    field(PINI, "YES")
+}
+
+record(longin, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):getWaveform2Top")
+{
+    alias("$(ALIAS):getWaveform2Top")
+    field(SCAN, "5 second")
+    field(DTYP, "asynInt32")
+    field(INP,  "@asyn($(DEVICE) 179) i_$(PS)")
+    field(PINI, "YES")
+}
+
+record(longin, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):getWaveform3Top")
+{
+    alias("$(ALIAS):getWaveform3Top")
+    field(SCAN, "5 second")
+    field(DTYP, "asynInt32")
+    field(INP,  "@asyn($(DEVICE) 180) i_$(PS)")
+    field(PINI, "YES")
+}
+
+record(longin, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):getDpcccId")
+{
+    alias("$(ALIAS):getDpcccId")
+    field(SCAN, "5 second")
+    field(DTYP, "asynInt32")
+    field(INP,  "@asyn($(DEVICE) 204) i_$(PS)")
+    field(PINI, "YES")
+}
+
+record(ai, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):getMaxPcoVout")
+{
+    alias("$(ALIAS):getMaxPcoVout")
+    field(SCAN, "5 second")
+    field(DTYP, "asynFloat64")
+    field(INP,  "@asyn($(DEVICE) 185) f_$(PS)")
+    field(PREC, "3")
+    field(PINI, "YES")
+}
+
+record(ai, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):getMaxPcoIout")
+{
+    alias("$(ALIAS):getMaxPcoIout")
+    field(SCAN, "5 second")
+    field(DTYP, "asynFloat64")
+    field(INP,  "@asyn($(DEVICE) 186) f_$(PS)")
+    field(PREC, "3")
+    field(PINI, "YES")
+}
+
+record(ai, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):getInterlockVmon")
+{
+    alias("$(ALIAS):getInterlockVmon")
+    field(SCAN, "5 second")
+    field(DTYP, "asynFloat64")
+    field(INP,  "@asyn($(DEVICE) 187) f_$(PS)")
+    field(PREC, "3")
+    field(PINI, "YES")
+}
+
+record(ai, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):getInterlockIload")
+{
+    alias("$(ALIAS):getInterlockIload")
+    field(SCAN, "5 second")
+    field(DTYP, "asynFloat64")
+    field(INP,  "@asyn($(DEVICE) 188) f_$(PS)")
+    field(PREC, "3")
+    field(PINI, "YES")
+}
+
+record(ai, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):getInterlockIearth")
+{
+    alias("$(ALIAS):getInterlockIearth")
+    field(SCAN, "5 second")
+    field(DTYP, "asynFloat64")
+    field(INP,  "@asyn($(DEVICE) 189) f_$(PS)")
+    field(PREC, "3")
+    field(PINI, "YES")
+}
+
+record(ai, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):getInterlockdIdt")
+{
+    alias("$(ALIAS):getInterlockdIdt")
+    field(SCAN, "5 second")
+    field(DTYP, "asynFloat64")
+    field(INP,  "@asyn($(DEVICE) 201) f_$(PS)")
+    field(PREC, "3")
+    field(PINI, "YES")
+}
+
+record(ai, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):getInterlockError")
+{
+    alias("$(ALIAS):getInterlockError")
+    field(SCAN, "5 second")
+    field(DTYP, "asynFloat64")
+    field(INP,  "@asyn($(DEVICE) 202) f_$(PS)")
+    field(PREC, "3")
+    field(PINI, "YES")
+}
+
+record(ai, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):getInterlockTemperature")
+{
+    alias("$(ALIAS):getInterlockTemperature")
+    field(SCAN, "5 second")
+    field(DTYP, "asynFloat64")
+    field(INP,  "@asyn($(DEVICE) 203) f_$(PS)")
+    field(PREC, "3")
+    field(PINI, "YES")
+}
+
+record(longin, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):getInterlockMask")
+{
+    alias("$(ALIAS):getInterlockMask")
+    field(SCAN, "5 second")
+    field(DTYP, "asynInt32")
+    field(INP,  "@asyn($(DEVICE) 97) i_$(PS)")
+    field(PINI, "YES")
+}
+
+record(ai, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):getEmax")
+{
+    alias("$(ALIAS):getEmax")
+    field(SCAN, ".1 second" )
+    field(DTYP, "asynFloat64")
+    field(INP,  "@asyn($(DEVICE) 206) f_$(PS)")
+    field(PREC, "3")
+    field(PINI, "YES")
+}
+
