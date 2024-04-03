@@ -531,6 +531,112 @@ record(longin, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):getSlowInputs")
     field(PINI, "YES")
 }
 
+# field(B0ST, "Magnet")   field(B0ZSV, "NO_ALARM") field(B0OSV, "MAJOR")
+# field(B1ST, "DCCT_A")   field(B1ZSV, "NO_ALARM") field(B1OSV, "MAJOR")
+# field(B2ST, "DCCT_B")   field(B2ZSV, "NO_ALARM") field(B2OSV, "MAJOR")
+# field(B3ST, "PCO")      field(B3ZSV, "NO_ALARM") field(B3OSV, "MAJOR")
+# field(B4ST, "Vmon")     field(B4ZSV, "NO_ALARM") field(B4OSV, "MAJOR")
+# field(B5ST, "Iload")    field(B5ZSV, "NO_ALARM") field(B5OSV, "MAJOR")
+# field(B6ST, "Iearth")   field(B6ZSV, "NO_ALARM") field(B6OSV, "MAJOR")
+# field(B7ST, "didt")     field(B7ZSV, "NO_ALARM") field(B7OSV, "MAJOR")
+# field(B8ST, "Local")    field(B8ZSV, "NO_ALARM") field(B8OSV, "MAJOR")
+# field(B9ST, "Watchdog") field(B9ZSV, "NO_ALARM") field(B9OSV, "MAJOR")
+# field(BAST,"Safety")    field(BAZSV, "NO_ALARM") field(BAOSV, "MAJOR")
+record(mbbiDirect, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):getFaults")
+{
+    alias("$(ALIAS):getFaults")
+    field(SCAN, "1 second")
+    field(DTYP, "asynUInt32Digital")
+    field(INP,  "@asynMask($(DEVICE) 114 0xff) i_$(PS)_b")
+    field(PINI, "YES")
+    field(NOBT, 16)
+    field(SHFT, 0)
+}
+
+# field(B0ST, "0")
+# field(B1ST, "AC")
+# field(B2ST, "OTP")
+# field(B3ST, "FLD")
+# field(B4ST, "OVP")
+# field(B5ST, "SO")
+# field(B6ST, "OFF")
+# field(B7ST, "ENA")
+record(mbbiDirect, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):getPcoFaults")
+{
+    alias("$(ALIAS):getPcoFaults")
+    field(SCAN, "1 second")
+    field(DTYP, "asynUInt32Digital")
+    field(INP,  "@asynMask($(DEVICE) 115 0xff) i_$(PS)_b")
+    field(PINI, "YES")
+}
+
+# field(B0ST, "0")
+# field(B1ST, "AC")
+# field(B2ST, "OTP")
+# field(B3ST, "FLD")
+# field(B4ST, "OVP")
+# field(B5ST, "SO")
+# field(B6ST, "OFF")
+# field(B7ST, "ENA")
+record(mbbiDirect, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):getPcoFaults1")
+{
+    alias("$(ALIAS):getPcoFaults1")
+    field(SCAN, "1 second")
+    field(DTYP, "asynUInt32Digital")
+    field(INP,  "@asynMask($(DEVICE) 101 0xff) i_$(PS)_b")
+    field(PINI, "YES")
+}
+
+# field(B0ST, "Magnet Cooling")
+# field(B1ST, "DCCT_A")
+# field(B2ST, "DCCT_B")
+# field(B3ST, "PCO")
+# field(B4ST, "Vmon")
+# field(B5ST, "Iload")
+# field(B6ST, "Iearth")
+# field(B7ST, "didt")
+# field(B8ST, "Local")
+# field(B9ST, "Watchdog")
+record(mbbiDirect, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):getFirstFault")
+{
+    alias("$(ALIAS):getFirstFault")
+    field(SCAN, "1 second")
+    field(PINI, "YES")
+    field(DTYP, "asynUInt32Digital")
+    field(INP,  "@asynMask($(DEVICE) 111 0xff) i_$(PS)_b")
+}
+
+# field(B0ST, "CV")
+# field(B1ST, "CC")
+# field(B2ST, "NFLT")
+# field(B3ST, "FLT")
+# field(B4ST, "AST")
+# field(B5ST, "FDE")
+# field(B6ST, "0")
+# field(B7ST, "LCL")
+record(mbbiDirect, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):getPcoStatus")
+{
+    alias("$(ALIAS):getPcoStatus")
+    field(SCAN, "1 second" )
+    field(PINI, "YES")
+    field(DTYP, "asynUInt32Digital")
+    field(INP,  "@asynMask($(DEVICE) 102 0xff) i_$(PS)_b")
+}
+
+# field(B0ST, "TTY")  field(B0ZSV, "NO_ALARM") field(B0OSV, "MINOR")
+# field(B1ST, "SPI")  field(B0ZSV, "NO_ALARM") field(B0OSV, "MINOR")
+# field(B2ST, "didt") field(B0ZSV, "NO_ALARM") field(B0OSV, "MINOR")
+# field(B3ST, "Ramp") field(B0ZSV, "NO_ALARM") field(B0OSV, "MINOR")
+# field(B4ST, "PULS") field(B0ZSV, "NO_ALARM") field(B0OSV, "MINOR")
+record(mbbiDirect, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):getWarnings")
+{
+    alias("$(ALIAS):getWarnings")
+    field(SCAN, "1 second")
+    field(PINI, "YES")
+    field(DTYP, "asynUInt32Digital")
+    field(INP,  "@asynMask($(DEVICE) 127 0xff) i_$(PS)_b")
+}
+
 record(mbbi, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):getStateHandler")
 {
     alias("$(ALIAS):getStateHandler")
@@ -567,7 +673,7 @@ record(mbbi, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):getStateSequencer")
 record(ai, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):getTemperatureCc")
 {
     alias("$(ALIAS):getTemperatureCc")
-    field(SCAN, "60 second" )
+    field(SCAN, "10 second" )
     field(DTYP, "asynFloat64")
     field(INP,  "@asyn($(DEVICE) 123) f_$(PS)")
     field(PREC, "3")
@@ -579,7 +685,7 @@ record(ai, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):getTemperatureCc")
 record(ai, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):getTemperatureIdac")
 {
     alias("$(ALIAS):getTemperatureIdac")
-    field(SCAN, "60 second" )
+    field(SCAN, "10 second" )
     field(DTYP, "asynFloat64")
     field(INP,  "@asyn($(DEVICE) 124) f_$(PS)")
     field(PREC, "3")
@@ -592,14 +698,14 @@ record(longin, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):getLogIndex")
 {
     alias("$(ALIAS):getLogIndex")
     field(SCAN, "5 second")
-    field(DTYP, "asynFloat64")
+    field(DTYP, "asynInt32")
     field(INP,  "@asyn($(DEVICE) 125) f_$(PS)")
 }
 
 record(ai, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):getTemperatureAdc")
 {
     alias("$(ALIAS):getTemperatureAdc")
-    field(SCAN, "60 second" )
+    field(SCAN, "10 second" )
     field(DTYP, "asynInt32")
     field(INP,  "@asyn($(DEVICE) 182) i_$(PS)")
     field(PREC, "3")
@@ -940,6 +1046,49 @@ record(ai, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):getEmax")
     field(DTYP, "asynFloat64")
     field(INP,  "@asyn($(DEVICE) 206) f_$(PS)")
     field(PREC, "3")
+    field(PINI, "YES")
+}
+
+# 
+# Labels and versions
+# 
+record(longin, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):getPriority")
+{
+    alias("$(ALIAS):getPriority")
+    field(DTYP, "asynInt32")
+    field(INP,  "@asyn($(DEVICE) 2) i_$(PS)")
+    field(PINI, "YES")
+}
+
+record(longin, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):getLabel")
+{
+    alias("$(ALIAS):getLabel")
+    field(PINI, "YES")
+    field(DTYP, "asynInt32")
+    field(INP,  "@asyn($(DEVICE) 33) i_$(PS)")
+}
+
+record(longin, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):getApplication")
+{
+    alias("$(ALIAS):getApplication")
+    field(DTYP, "asynInt32")
+    field(INP,  "@asyn($(DEVICE) 34) i_$(PS)")
+    field(PINI, "YES")
+}
+
+record(ai, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):getNIOSVersion")
+{
+    alias("$(ALIAS):getNIOSVersion")
+    field(DTYP, "asynFloat64")
+    field(INP,  "@asyn($(DEVICE) 8) i_$(PS)")
+    field(PINI, "YES")
+}
+
+record(longin, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):getFPGAVersion")
+{
+    alias("$(ALIAS):getFPGAVersion")
+    field(DTYP, "asynInt32")
+    field(INP,  "@asyn($(DEVICE) 9) i_$(PS)")
     field(PINI, "YES")
 }
 
