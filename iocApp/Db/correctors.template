@@ -53,6 +53,26 @@ record(ao, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL)-PS$(PS):setParameterData")
 #
 # Getters
 #
+record(mbbiDirect, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL)-PS$(PS):getSlowInputs")
+{
+    alias("$(ALIAS):getSlowInputs")
+    field(SCAN, "1 second")
+    field(DTYP, "asynUInt32Digital")
+	field(INP,  "@asynMask($(DEVICE) 13 0xff) i_$(PS)_b")
+    field(NOBT, 8)
+    field(SHFT, 0)
+}
+
+record(mbbiDirect, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL)-PS$(PS):getSlowOutputs")
+{
+    alias("$(ALIAS):getSlowOutputs")
+    field(SCAN, "1 second")
+    field(DTYP, "asynUInt32Digital")
+    field(INP,  "@asynMask($(DEVICE) 14 0xff) i_$(PS)_b")
+    field(NOBT, 8)
+    field(SHFT, 0)
+}
+
 record(ai, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL)-PS$(PS):getReference")
 {
     alias("$(ALIAS):getReference")

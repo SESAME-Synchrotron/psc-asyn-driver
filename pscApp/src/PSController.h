@@ -55,9 +55,9 @@ public:
     asynStatus writeInt32(asynUser* asyn, epicsInt32 value);
     asynStatus readFloat64(asynUser* asyn, epicsFloat64* value);
     asynStatus writeFloat64(asynUser* asyn, epicsFloat64 value);
-
+    asynStatus readUInt32Digital(asynUser *pasynUser, epicsUInt32 *value, epicsUInt32 mask);
 protected:
-    int ps[6];
+    int ps[9];
 
 private:
     asynUser* device;

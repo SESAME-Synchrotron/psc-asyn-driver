@@ -4,8 +4,8 @@ PSController::PSController(const char* name, const char* asyn_name)
     : asynPortDriver(
             name,
             MAX_ADDRESSES,
-            asynInt32Mask | asynFloat64Mask | asynDrvUserMask,
-            asynInt32Mask | asynFloat64Mask,
+            asynInt32Mask | asynFloat64Mask | asynUInt32DigitalMask | asynDrvUserMask,
+            asynInt32Mask | asynFloat64Mask | asynUInt32DigitalMask,
             ASYN_MULTIDEVICE | ASYN_CANBLOCK,
             1, 0, 0)
 {
@@ -21,6 +21,16 @@ PSController::PSController(const char* name, const char* asyn_name)
     createParam("f_1", asynParamFloat64, &ps[3]);
     createParam("f_2", asynParamFloat64, &ps[4]);
     createParam("f_3", asynParamFloat64, &ps[5]);
+
+	createParam("i_1_b", asynParamUInt32Digital, &ps[6]);
+	createParam("i_2_b", asynParamUInt32Digital, &ps[7]);
+	createParam("i_3_b", asynParamUInt32Digital, &ps[8]);
+}
+
+asynStatus PSController::readUInt32Digital(asynUser* asyn, epicsUInt32 *value, epicsUInt32 mask)
+{
+	asynStatus status = performIO(asyn, (u32*) value);
+	return status;
 }
 
 asynStatus PSController::readInt32(asynUser* asyn, epicsInt32* value)
