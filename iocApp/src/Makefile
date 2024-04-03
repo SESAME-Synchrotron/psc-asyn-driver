@@ -14,12 +14,11 @@ DBD += ioc.dbd
 
 # ioc.dbd will be made up from these files:
 ioc_DBD += base.dbd
+ioc_DBD += asyn.dbd
+ioc_DBD += drvAsynIPPort.dbd
+ioc_DBD += psc.dbd
 
-# Include dbd files from all support applications:
-#ioc_DBD += xxx.dbd
-
-# Add all the support libraries needed by this IOC
-#ioc_LIBS += xxx
+ioc_LIBS += asyn psc
 
 # ioc_registerRecordDeviceDriver.cpp derives from ioc.dbd
 ioc_SRCS += ioc_registerRecordDeviceDriver.cpp
