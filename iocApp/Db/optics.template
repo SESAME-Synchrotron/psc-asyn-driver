@@ -706,8 +706,8 @@ record(ai, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):getTemperatureAdc")
 {
     alias("$(ALIAS):getTemperatureAdc")
     field(SCAN, "10 second" )
-    field(DTYP, "asynInt32")
-    field(INP,  "@asyn($(DEVICE) 182) i_$(PS)")
+    field(DTYP, "asynFloat64")
+    field(INP,  "@asyn($(DEVICE) 182) f_$(PS)")
     field(PREC, "3")
     field(PINI, "YES")
 }
