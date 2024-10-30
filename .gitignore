@@ -5,3 +5,5 @@ lib/
 O.*/
 envPaths
 *.substitutions
+.*
+*.txt

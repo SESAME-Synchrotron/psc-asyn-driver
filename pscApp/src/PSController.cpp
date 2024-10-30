@@ -4,8 +4,8 @@ PSController::PSController(const char* name, const char* asyn_name)
     : asynPortDriver(
             name,
             MAX_ADDRESSES,
-            asynInt32Mask | asynFloat64Mask | asynUInt32DigitalMask | asynDrvUserMask,
-            asynInt32Mask | asynFloat64Mask | asynUInt32DigitalMask,
+            asynInt32Mask | asynFloat64Mask | asynUInt32DigitalMask | asynFloat32ArrayMask | asynDrvUserMask,
+            asynInt32Mask | asynFloat64Mask | asynUInt32DigitalMask | asynFloat32ArrayMask,
             ASYN_MULTIDEVICE | ASYN_CANBLOCK,
             1, 0, 0)
 {
@@ -25,6 +25,13 @@ PSController::PSController(const char* name, const char* asyn_name)
 	createParam("i_1_b", asynParamUInt32Digital, &ps[6]);
 	createParam("i_2_b", asynParamUInt32Digital, &ps[7]);
 	createParam("i_3_b", asynParamUInt32Digital, &ps[8]);
+
+    setEthernetState(ETHERNET_ENABLE);
+}
+
+asynStatus PSController::readFloat32Array(asynUser *asyn, epicsFloat32 *value, size_t nElements, size_t *nIn)
+{
+
 }
 
 asynStatus PSController::readUInt32Digital(asynUser* asyn, epicsUInt32 *value, epicsUInt32 mask)
@@ -47,6 +54,7 @@ asynStatus PSController::readFloat64(asynUser* asyn, epicsFloat64* value)
     asynStatus status = performIO(asyn, &raw);
     memcpy(&temp, &raw, sizeof(u32));
     *value = temp;
+
     return status;
 }
 
@@ -54,9 +62,7 @@ asynStatus PSController::writeInt32(asynUser* asyn, epicsInt32 value)
 {
     u32 temp = (u32) value;
 
-    setEthernetState(ETHERNET_ENABLE);
     asynStatus status = performIO(asyn, &temp, COMMAND_WRITE);
-    setEthernetState(ETHERNET_DISABLE);
     return status;
 }
 
@@ -64,9 +70,7 @@ asynStatus PSController::writeFloat64(asynUser* asyn, epicsFloat64 value)
 {
     float temp = (float) value;
 
-    setEthernetState(ETHERNET_ENABLE);
     asynStatus status = performIO(asyn, reinterpret_cast<u32*>(&temp), COMMAND_WRITE);
-    setEthernetState(ETHERNET_DISABLE);
     return status;
 }
 
@@ -122,7 +126,7 @@ asynStatus PSController::setEthernetState(u32 state)
     tx = {
         .status  = 0x0,
         .command = COMMAND_WRITE,
-        .address = ADDRESS_PRIORITY | (3 << PS_ADDRESS_SHIFT),
+        .address = ADDRESS_PRIORITY | (1 << PS_ADDRESS_SHIFT),
         .data    = state,
     };
     memcpy(tx_array, &tx, sizeof(tx_array));

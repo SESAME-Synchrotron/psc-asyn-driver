@@ -6,7 +6,7 @@ ioc_registerRecordDeviceDriver pdbbase
 dbLoadRecords("db/correctors.db")
 dbLoadRecords("db/optics.db")
 
-drvAsynIPPortConfigure("PS_QF1_1", "", 0, 0, 0)
+drvAsynIPPortConfigure("PS_QF1_1", "10.2.2.179:9322 UDP", 0, 0, 0) # 628
 PSCConfigure("QF1_1", "PS_QF1_1")
 
 iocInit

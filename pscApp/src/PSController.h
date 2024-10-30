@@ -33,6 +33,7 @@ using std::find;
 
 typedef uint32_t u32;
 typedef uint16_t u16;
+typedef uint8_t u8;
 
 typedef enum {
     COMMAND_READ  = 0x0001,
@@ -55,9 +56,10 @@ public:
     asynStatus writeInt32(asynUser* asyn, epicsInt32 value);
     asynStatus readFloat64(asynUser* asyn, epicsFloat64* value);
     asynStatus writeFloat64(asynUser* asyn, epicsFloat64 value);
-    asynStatus readUInt32Digital(asynUser *pasynUser, epicsUInt32 *value, epicsUInt32 mask);
+    asynStatus readUInt32Digital(asynUser *asyn, epicsUInt32 *value, epicsUInt32 mask);
+    asynStatus readFloat32Array(asynUser *asyn, epicsFloat32 *value, size_t nElements, size_t *nIn);
 protected:
-    int ps[9];
+    int ps[10];
 
 private:
     asynUser* device;
