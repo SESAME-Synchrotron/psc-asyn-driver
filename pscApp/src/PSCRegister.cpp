@@ -3,14 +3,14 @@
 #include <iocsh.h>
 #include <PSController.h>
 
-extern "C" asynStatus PSCConfigure(const char* port_name, const char* asyn_name)
+extern "C" asynStatus PSCConfigure(const char* port_name, const char* ip_port)
 {
-    new PSController(port_name, asyn_name);
+    new PSController(port_name, ip_port);
     return asynSuccess;
 }
 
 static const iocshArg arg0 = {"Port Name", iocshArgString };
-static const iocshArg arg1 = {"Asyn Name", iocshArgString };
+static const iocshArg arg1 = {"IP address", iocshArgString };
 static const iocshArg* args[] = {&arg0, &arg1};
 static const iocshFuncDef configureFunction = {"PSCConfigure", 2, args};
 

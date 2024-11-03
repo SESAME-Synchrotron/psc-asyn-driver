@@ -547,7 +547,7 @@ record(mbbiDirect, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):getFaults")
     alias("$(ALIAS):getFaults")
     field(SCAN, "1 second")
     field(DTYP, "asynUInt32Digital")
-    field(INP,  "@asynMask($(DEVICE) 114 0xff) i_$(PS)_b")
+    field(INP,  "@asynMask($(DEVICE) 114 0xff) b_$(PS)")
     field(PINI, "YES")
     field(NOBT, 16)
     field(SHFT, 0)
@@ -566,7 +566,7 @@ record(mbbiDirect, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):getPcoFaults")
     alias("$(ALIAS):getPcoFaults")
     field(SCAN, "1 second")
     field(DTYP, "asynUInt32Digital")
-    field(INP,  "@asynMask($(DEVICE) 115 0xff) i_$(PS)_b")
+    field(INP,  "@asynMask($(DEVICE) 115 0xff) b_$(PS)")
     field(PINI, "YES")
 }
 
@@ -583,7 +583,7 @@ record(mbbiDirect, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):getPcoFaults1")
     alias("$(ALIAS):getPcoFaults1")
     field(SCAN, "1 second")
     field(DTYP, "asynUInt32Digital")
-    field(INP,  "@asynMask($(DEVICE) 101 0xff) i_$(PS)_b")
+    field(INP,  "@asynMask($(DEVICE) 101 0xff) b_$(PS)")
     field(PINI, "YES")
 }
 
@@ -603,7 +603,7 @@ record(mbbiDirect, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):getFirstFault")
     field(SCAN, "1 second")
     field(PINI, "YES")
     field(DTYP, "asynUInt32Digital")
-    field(INP,  "@asynMask($(DEVICE) 111 0xff) i_$(PS)_b")
+    field(INP,  "@asynMask($(DEVICE) 111 0xff) b_$(PS)")
 }
 
 # field(B0ST, "CV")
@@ -620,7 +620,7 @@ record(mbbiDirect, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):getPcoStatus")
     field(SCAN, "1 second" )
     field(PINI, "YES")
     field(DTYP, "asynUInt32Digital")
-    field(INP,  "@asynMask($(DEVICE) 102 0xff) i_$(PS)_b")
+    field(INP,  "@asynMask($(DEVICE) 102 0xff) b_$(PS)")
 }
 
 # field(B0ST, "TTY")  field(B0ZSV, "NO_ALARM") field(B0OSV, "MINOR")
@@ -634,7 +634,7 @@ record(mbbiDirect, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):getWarnings")
     field(SCAN, "1 second")
     field(PINI, "YES")
     field(DTYP, "asynUInt32Digital")
-    field(INP,  "@asynMask($(DEVICE) 127 0xff) i_$(PS)_b")
+    field(INP,  "@asynMask($(DEVICE) 127 0xff) b_$(PS)")
 }
 
 record(mbbi, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):getStateHandler")
@@ -1092,3 +1092,15 @@ record(longin, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):getFPGAVersion")
     field(PINI, "YES")
 }
 
+#
+# Waveforms
+#
+record(waveform, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):getParameters")
+{
+    alias("$(ALIAS):getParameters")
+	field(DTYP, "asynInt32ArrayIn")
+	field(INP,  "@asyn($(DEVICE) 15) parameters_1")
+    field(PINI, "NO")
+	field(FTVL, "ULONG")
+	field(NELM, "256")
+}
