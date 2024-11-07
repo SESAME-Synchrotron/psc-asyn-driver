@@ -68,8 +68,8 @@ typedef uint32_t u32;
 typedef uint16_t u16;
 typedef uint8_t u8;
 
-#define COMMAND_READ  0x0001
-#define COMMAND_WRITE 0x0002
+static const int COMMAND_READ  = 0x0001;
+static const int COMMAND_WRITE = 0x0002;
 
 typedef struct
 {

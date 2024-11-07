@@ -1091,7 +1091,7 @@ record(longin, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):getFPGAVersion")
     field(INP,  "@asyn($(DEVICE) 9) i_$(PS)")
     field(PINI, "YES")
 }
-
+# 
 #
 # Waveforms
 #
