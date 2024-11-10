@@ -1091,7 +1091,7 @@ record(longin, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):getFPGAVersion")
     field(INP,  "@asyn($(DEVICE) 9) i_$(PS)")
     field(PINI, "YES")
 }
-# 
+
 #
 # Waveforms
 #
@@ -1100,6 +1100,16 @@ record(waveform, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):getParameters")
     alias("$(ALIAS):getParameters")
 	field(DTYP, "asynInt32ArrayIn")
 	field(INP,  "@asyn($(DEVICE) 15) parameters_1")
+    field(PINI, "NO")
+	field(FTVL, "ULONG")
+	field(NELM, "256")
+}
+
+record(waveform, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):setParameters")
+{
+    alias("$(ALIAS):setParameters")
+	field(DTYP, "asynInt32ArrayOut")
+	field(INP,  "@asyn($(DEVICE) 15) write_parameters_1")
     field(PINI, "NO")
 	field(FTVL, "ULONG")
 	field(NELM, "256")

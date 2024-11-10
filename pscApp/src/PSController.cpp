@@ -50,6 +50,7 @@ PSController::PSController(const char* name, const char* ip_port)
 	createParam("b_3", asynParamUInt32Digital, &ps[8]);
 
     createParam("parameters_1", asynParamInt32Array, &ps[9]);
+    createParam("write_parameters_1", asynParamInt32Array, &ps[10]);
 
     setEthernetState(ETHERNET_ENABLE);
 }
@@ -187,6 +188,159 @@ exit:
     if (status != 0)
         return asynError;
     return asynSuccess;
+}
+
+asynStatus PSController::writeInt32Array(asynUser *asyn, epicsInt32 *value,
+                                        size_t nElements)
+{
+    LOAD_ASYN_ADDRESS;
+
+	u32 mode;
+	asynStatus status;
+	int counter = 0;
+    int index = 0;
+
+	state_t state = STATE_INIT;
+	state_t next_state;
+
+    u32 offset = address;
+    u32 length = nElements;
+
+
+    u32 init = (length << 8)|(offset & 0xff);
+
+    static const u32 zero = 0;
+
+    lock();
+    while (state != STATE_DEVICE_OFF)
+	{
+		switch (state)
+		{
+			case STATE_INIT:
+                status = doRegisterIO(ADDRESS_DATA_TRANSFER_INIT, COMMAND_WRITE,
+                                      &init);
+				if (status != PSC_OK)
+					next_state = STATE_ERROR;
+				else
+					next_state = STATE_CHECK_DOWNLOAD_MODE;
+				break;
+
+			case STATE_CHECK_DOWNLOAD_MODE:
+                status = doRegisterIO(ADDRESS_SYSTEM_OPERATING_STATE,
+                        COMMAND_READ, &mode);
+				if (status != PSC_OK)
+					next_state = STATE_ERROR;
+				else if (mode != MODE_DOWNLOAD_DATA)
+					next_state = STATE_CHECK_DOWNLOAD_MODE;
+				else
+					next_state = STATE_DATA_TRANSFER;
+				break;
+
+			case STATE_DATA_TRANSFER:
+                status = doRegisterIO(ADDRESS_DATA_TRANSFER, COMMAND_WRITE, (u32*)(value + index));
+				usleep(1000);
+				if (status != PSC_OK)
+					next_state = STATE_ERROR;
+				else
+					next_state = STATE_VERIFY_DATA;
+				break;
+
+			case STATE_VERIFY_DATA:
+                status = doRegisterIO(ADDRESS_DATA_TRANSFER, COMMAND_READ, &mode);
+				if (status != PSC_OK)
+					next_state = STATE_ERROR;
+				else if (mode != (u32)value[index])
+					next_state = STATE_VERIFY_DATA;
+				else if (index >= 255)
+					next_state = STATE_EXIT_DOWNLOAD_MODE;
+				else {
+					index++;
+					next_state = STATE_DATA_TRANSFER;
+				}
+				break;
+
+			case STATE_EXIT_DOWNLOAD_MODE:
+                status = doRegisterIO(ADDRESS_SYSTEM_OPERATING_STATE, COMMAND_READ, &mode);
+				if (status != PSC_OK)
+					next_state = STATE_ERROR;
+				else if (mode == MODE_DOWNLOAD_DATA)
+					next_state = STATE_EXIT_DOWNLOAD_MODE;
+				else
+					next_state = STATE_COPY_TO_FLASH;
+				break;
+
+			case STATE_COPY_TO_FLASH:
+                status = doRegisterIO(ADDRESS_DATA_BLOCK_DESTINATION,
+                                      COMMAND_WRITE,
+                                      &init);
+				if (status != PSC_OK)
+					next_state = STATE_ERROR;
+				else
+					next_state = STATE_WAIT_SAVE;
+				break;
+
+			case STATE_WAIT_SAVE:
+                status = doRegisterIO(ADDRESS_SYSTEM_OPERATING_STATE, 
+                        COMMAND_READ, &mode);
+				if (status != PSC_OK)
+					next_state = STATE_ERROR;
+				else if (mode != MODE_SAVE_DATA)
+					next_state = STATE_WAIT_SAVE;
+				else
+					next_state = STATE_SAVE_FINISHED;
+				break;
+
+			case STATE_SAVE_FINISHED:
+                status = doRegisterIO(ADDRESS_SYSTEM_OPERATING_STATE, COMMAND_READ, &mode);
+				if (status != PSC_OK)
+					next_state = STATE_ERROR;
+				else if (mode == MODE_SAVE_DATA)
+					next_state = STATE_SAVE_FINISHED;
+				else
+					next_state = STATE_END_TRANSFER;
+				break;
+
+			case STATE_END_TRANSFER:
+                status = doRegisterIO(ADDRESS_DATA_TRANSFER_INIT, COMMAND_WRITE, const_cast<u32*>(&zero));
+				if (status != PSC_OK)
+					next_state = STATE_ERROR;
+				else
+					next_state = STATE_WAIT_DEVICE_OFF;
+				break;
+
+			case STATE_WAIT_DEVICE_OFF:
+                status = doRegisterIO(ADDRESS_SYSTEM_OPERATING_STATE, COMMAND_READ, &mode);
+				if (status != PSC_OK)
+					next_state = STATE_ERROR;
+				else if (mode == MODE_DEVICE_OFF)
+					next_state = STATE_DEVICE_OFF;
+				else
+					next_state = STATE_WAIT_DEVICE_OFF;
+				break;
+
+			default:
+				goto exit;
+				break;
+		}
+
+		counter++;
+		usleep(1000);
+		if (next_state != state) {
+			printf("%- 25s -> %s \n", state_names[state], state_names[next_state]);
+			counter = 0;
+		}
+
+		if (counter >= LOOP_LIMIT) {
+			printf("State loop limit reached. [ %s ]\n", state_names[state]);
+			status = asynError;
+			break;
+		}
+
+		state = next_state;
+	}
+
+exit:
+	return status;
 }
 
 asynStatus PSController::readUInt32Digital(asynUser* asyn, epicsUInt32 *value, epicsUInt32 mask)

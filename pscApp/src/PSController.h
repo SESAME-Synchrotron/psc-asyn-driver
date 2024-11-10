@@ -66,7 +66,7 @@ using std::find;
 
 typedef uint32_t u32;
 typedef uint16_t u16;
-typedef uint8_t u8;
+typedef uint8_t  u8;
 
 static const int COMMAND_READ  = 0x0001;
 static const int COMMAND_WRITE = 0x0002;
@@ -134,9 +134,12 @@ public:
     asynStatus readFloat64(asynUser* asyn, epicsFloat64* value);
     asynStatus writeFloat64(asynUser* asyn, epicsFloat64 value);
     asynStatus readUInt32Digital(asynUser *asyn, epicsUInt32 *value, epicsUInt32 mask);
-    asynStatus readInt32Array(asynUser *pasynUser, epicsInt32 *value, size_t nElements, size_t *nIn);
+    asynStatus readInt32Array(asynUser *pasynUser, epicsInt32 *value, 
+                              size_t nElements, size_t *nIn);
+    asynStatus writeInt32Array(asynUser *pasynUser, epicsInt32 *value, 
+                               size_t nElements);
 protected:
-    int ps[10];
+    int ps[11];
 
 private:
     asynUser* registerIO;
