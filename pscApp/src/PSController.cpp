@@ -32,12 +32,6 @@ PSController::PSController(const char* name, const char* ip_port)
         return;
     }
 
-    status = pasynOctetSyncIO->connect("TCP", 1, &this->blockIO, NULL);
-    if(status != asynSuccess) {
-        cout << "Could not connect to TCP port: " << ip_port << endl;
-        return;
-    }
-
     createParam("i_1", asynParamInt32,   &ps[0]);
     createParam("i_2", asynParamInt32,   &ps[1]);
     createParam("i_3", asynParamInt32,   &ps[2]);
@@ -77,7 +71,14 @@ asynStatus PSController::readInt32Array(asynUser *asyn, epicsInt32 *value,
 	state_t state = STATE_INIT;
 	state_t next_state;
 
+    status = pasynOctetSyncIO->connect("TCP", 1, &this->blockIO, NULL);
+    if(status != asynSuccess) {
+        cout << "Could not connect to TCP port: " << ip_port << endl;
+        return asynError;
+    }
+
     lock();
+
 	while (state != STATE_DEVICE_OFF)
 	{
         switch (state)
@@ -87,18 +88,18 @@ asynStatus PSController::readInt32Array(asynUser *asyn, epicsInt32 *value,
                 if (status != asynSuccess)
                     next_state = STATE_ERROR;
                 else
-                    next_state = STATE_CHECK_DATA_TRANSFER;
-                break;
-
-            case STATE_CHECK_DATA_TRANSFER:
-                status = doRegisterIO(ADDRESS_DATA_TRANSFER_INIT, COMMAND_READ, &mode);
-                if (status != PSC_OK)
-                    next_state = STATE_ERROR;
-                else if (mode != (u32) address)
-                    next_state = STATE_CHECK_DATA_TRANSFER;
-                else
                     next_state = STATE_ENTER_TRANSIENT;
                 break;
+
+//             case STATE_CHECK_DATA_TRANSFER:
+//                 status = doRegisterIO(ADDRESS_DATA_TRANSFER_INIT, COMMAND_READ, &mode);
+//                 if (status != PSC_OK)
+//                     next_state = STATE_ERROR;
+//                 else if (mode != (u32) address)
+//                     next_state = STATE_CHECK_DATA_TRANSFER;
+//                 else
+//                     next_state = STATE_ENTER_TRANSIENT;
+//                 break;
 
             case STATE_ENTER_TRANSIENT:
                 status = doRegisterIO(ADDRESS_SYSTEM_OPERATING_STATE, COMMAND_READ, &mode);
@@ -106,10 +107,8 @@ asynStatus PSController::readInt32Array(asynUser *asyn, epicsInt32 *value,
                     next_state = STATE_ERROR;
                 else if (mode != MODE_TRANSIENT && mode != MODE_MODIFY_DATA)
                     next_state = STATE_ENTER_TRANSIENT;
-                else if (mode == MODE_TRANSIENT)
-                    next_state = STATE_EXIT_TRANSIENT;
                 else
-                    next_state = STATE_DATA_TRANSFER;
+                    next_state = STATE_EXIT_TRANSIENT;
                 break;
 
             case STATE_EXIT_TRANSIENT:
@@ -138,13 +137,13 @@ asynStatus PSController::readInt32Array(asynUser *asyn, epicsInt32 *value,
                 }
                 else {
                     memcpy(value, rx_array, sizeof(rx_array));
-                    *nIn = (rx_bytes / 4);
+                    *nIn = (rx_bytes / sizeof(u32));
                     next_state = STATE_END_TRANSFER;
                 }
                 break;
 
             case STATE_END_TRANSFER:
-                status = doRegisterIO(ADDRESS_DATA_TRANSFER_INIT, COMMAND_WRITE, &(u32[]){0}[0]);
+                status = doRegisterIO(ADDRESS_DATA_TRANSFER_INIT, COMMAND_WRITE, const_cast<u32*>(&zero));
                 if (status != PSC_OK)
                     next_state = STATE_ERROR;
                 else
@@ -172,7 +171,7 @@ asynStatus PSController::readInt32Array(asynUser *asyn, epicsInt32 *value,
 			printf("%- 25s -> %s \n", state_names[state], state_names[next_state]);
 			counter = 0;
 		}
-		
+
 		if (counter >= LOOP_LIMIT) {
 			printf("State loop limit reached. [ %s ]\n", state_names[state]);
 			status = -1;
@@ -184,6 +183,12 @@ asynStatus PSController::readInt32Array(asynUser *asyn, epicsInt32 *value,
 
 exit:
     unlock();
+    status = pasynOctetSyncIO->disconnect(this->blockIO);
+    if(status != asynSuccess) {
+        cout << "Could not connect to TCP port: " << ip_port << endl;
+        return asynError;
+    }
+
     printf("Final status: %d\n", status);
     if (status != 0)
         return asynError;

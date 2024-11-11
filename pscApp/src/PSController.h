@@ -26,7 +26,7 @@ using std::find;
 
 #pragma pack(2)
 
-#define LOOP_LIMIT 1000
+#define LOOP_LIMIT 10000
 #define MAX_ADDRESSES       256
 #define PACKET_LENGTH   10
 #define TCP_PACKET_LENGTH   9
@@ -101,6 +101,8 @@ typedef enum
     STATE_EXIT_TRANSIENT,
     STATE_REQUEST_DATA,
 
+    STATE_STOP_LOGGER,
+
     STATE_ERROR
 } state_t;
 
@@ -121,6 +123,8 @@ static const char* state_names[] = {
     "STATE_ENTER_TRANSIENT",
     "STATE_EXIT_TRANSIENT",
     "STATE_REQUEST_DATA",
+
+    "STATE_STOP_LOGGER",
 
     "STATE_ERROR"
 };
