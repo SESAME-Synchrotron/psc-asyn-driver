@@ -31,10 +31,10 @@ using std::find;
 #define PACKET_LENGTH   10
 #define TCP_PACKET_LENGTH   9
 #define PS_ADDRESS_SHIFT    14
-#define ADDRESS_PRIORITY    0x2
 #define ETHERNET_ENABLE     0x1000000
 #define ETHERNET_DISABLE    0x0
 
+#define ADDRESS_PRIORITY               0x02
 #define ADDRESS_SYSTEM_OPERATING_STATE 0x04
 #define ADDRESS_DATA_TRANSFER_INIT     0x23
 #define ADDRESS_DATA_TRANSFER          0x24
@@ -163,6 +163,8 @@ private:
     asynUser* registerIO;
     asynUser* blockIO;
     asynUser* asyn;
+    asynStatus writeRegister(u16 address, u32 value);
+    asynStatus readRegister(u16 address, u32* value);
     asynStatus doRegisterIO(u16 address, int command, u32* value);
     asynStatus setEthernetState(u32 state);
 

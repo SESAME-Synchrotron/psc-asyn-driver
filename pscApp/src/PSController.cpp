@@ -83,7 +83,8 @@ asynStatus PSController::readInt32Array(asynUser *asyn, epicsInt32 *value,
         switch (state)
         {
             case STATE_INIT:
-                status = doRegisterIO(ADDRESS_DATA_TRANSFER_INIT, COMMAND_WRITE, (u32*) &address);
+                // status = doRegisterIO(ADDRESS_DATA_TRANSFER_INIT, COMMAND_WRITE, (u32*) &address);
+                status = writeRegister(ADDRESS_DATA_TRANSFER_INIT, (u32) address);
                 if (status != asynSuccess)
                     next_state = STATE_ERROR;
                 else
@@ -91,7 +92,9 @@ asynStatus PSController::readInt32Array(asynUser *asyn, epicsInt32 *value,
                 break;
 
             case STATE_ENTER_TRANSIENT:
-                status = doRegisterIO(ADDRESS_SYSTEM_OPERATING_STATE, COMMAND_READ, &mode);
+                // status = doRegisterIO(ADDRESS_SYSTEM_OPERATING_STATE, COMMAND_READ, &mode);
+                status = readRegister(ADDRESS_SYSTEM_OPERATING_STATE, &mode);
+                printf("mode: %s\n", modes[mode]);
                 if (status != PSC_OK)
                     next_state = STATE_ERROR;
                 else if (mode != MODE_TRANSIENT && mode != MODE_MODIFY_DATA)
@@ -378,6 +381,16 @@ asynStatus PSController::writeFloat64(asynUser* asyn, epicsFloat64 value)
     std::cout << address << " - " << status << std::endl;
 
     return status;
+}
+
+inline asynStatus PSController::writeRegister(u16 address, u32 value)
+{
+    return doRegisterIO(address, COMMAND_WRITE, &value);
+}
+
+inline asynStatus PSController::readRegister(u16 address, u32* value)
+{
+    return doRegisterIO(address, COMMAND_READ, value);
 }
 
 asynStatus PSController::doRegisterIO(u16 address, int command, u32* value)
