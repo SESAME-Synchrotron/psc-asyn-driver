@@ -39,6 +39,7 @@ using std::find;
 #define ADDRESS_DATA_TRANSFER_INIT     0x23
 #define ADDRESS_DATA_TRANSFER          0x24
 #define ADDRESS_DATA_BLOCK_DESTINATION 0x25
+#define ADDRESS_DATA_SOURCE            0x26
 
 #define MODE_MONITOR            0
 #define MODE_DEVICE_OFF         1
@@ -50,6 +51,19 @@ using std::find;
 #define MODE_DOWNLOAD_DATA      8
 #define MODE_SAVE_DATA          9
 #define MODE_MODIFY_DATA        11
+
+static const char* modes[] = {
+    "MONITOR",
+    "DEVICE_OFF",
+    "DEVICE_ON",
+    "ADC_CAL",
+    "DEVICE_LOCKED",
+    "TRANSIENT",
+    "DEVICE_OFF_LOCKED",
+    "DOWNLOAD_DATA",
+    "SAVE_DATA",
+    "MODIFY_DATA"
+};
 
 #define PSC_OK		0
 #define PSC_SOCKET	1

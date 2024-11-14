@@ -32,6 +32,12 @@ PSController::PSController(const char* name, const char* ip_port)
         return;
     }
 
+    status = pasynOctetSyncIO->connect("TCP", 1, &this->blockIO, NULL);
+    if(status != asynSuccess) {
+        cout << "Could not connect to TCP port: " << ip_port << endl;
+        return;
+    }
+
     createParam("i_1", asynParamInt32,   &ps[0]);
     createParam("i_2", asynParamInt32,   &ps[1]);
     createParam("i_3", asynParamInt32,   &ps[2]);
@@ -71,14 +77,7 @@ asynStatus PSController::readInt32Array(asynUser *asyn, epicsInt32 *value,
 	state_t state = STATE_INIT;
 	state_t next_state;
 
-    status = pasynOctetSyncIO->connect("TCP", 1, &this->blockIO, NULL);
-    if(status != asynSuccess) {
-        cout << "Could not connect to TCP port: " << ip_port << endl;
-        return asynError;
-    }
-
-    lock();
-
+    setEthernetState(ETHERNET_ENABLE);
 	while (state != STATE_DEVICE_OFF)
 	{
         switch (state)
@@ -90,16 +89,6 @@ asynStatus PSController::readInt32Array(asynUser *asyn, epicsInt32 *value,
                 else
                     next_state = STATE_ENTER_TRANSIENT;
                 break;
-
-//             case STATE_CHECK_DATA_TRANSFER:
-//                 status = doRegisterIO(ADDRESS_DATA_TRANSFER_INIT, COMMAND_READ, &mode);
-//                 if (status != PSC_OK)
-//                     next_state = STATE_ERROR;
-//                 else if (mode != (u32) address)
-//                     next_state = STATE_CHECK_DATA_TRANSFER;
-//                 else
-//                     next_state = STATE_ENTER_TRANSIENT;
-//                 break;
 
             case STATE_ENTER_TRANSIENT:
                 status = doRegisterIO(ADDRESS_SYSTEM_OPERATING_STATE, COMMAND_READ, &mode);
@@ -182,14 +171,6 @@ asynStatus PSController::readInt32Array(asynUser *asyn, epicsInt32 *value,
     }
 
 exit:
-    unlock();
-    status = pasynOctetSyncIO->disconnect(this->blockIO);
-    if(status != asynSuccess) {
-        cout << "Could not connect to TCP port: " << ip_port << endl;
-        return asynError;
-    }
-
-    printf("Final status: %d\n", status);
     if (status != 0)
         return asynError;
     return asynSuccess;
@@ -210,13 +191,11 @@ asynStatus PSController::writeInt32Array(asynUser *asyn, epicsInt32 *value,
 
     u32 offset = address;
     u32 length = nElements;
-
-
     u32 init = (length << 8)|(offset & 0xff);
 
-    static const u32 zero = 0;
+    u32 zero = 0;
 
-    lock();
+    setEthernetState(ETHERNET_ENABLE);
     while (state != STATE_DEVICE_OFF)
 	{
 		switch (state)
@@ -306,7 +285,7 @@ asynStatus PSController::writeInt32Array(asynUser *asyn, epicsInt32 *value,
 				break;
 
 			case STATE_END_TRANSFER:
-                status = doRegisterIO(ADDRESS_DATA_TRANSFER_INIT, COMMAND_WRITE, const_cast<u32*>(&zero));
+                status = doRegisterIO(ADDRESS_DATA_TRANSFER_INIT, COMMAND_WRITE, &zero);
 				if (status != PSC_OK)
 					next_state = STATE_ERROR;
 				else
@@ -383,6 +362,7 @@ asynStatus PSController::writeInt32(asynUser* asyn, epicsInt32 value)
     LOAD_ASYN_ADDRESS;
     u32 temp = (u32) value;
 
+    setEthernetState(ETHERNET_ENABLE);
     asynStatus status = doRegisterIO(address, COMMAND_WRITE, &temp);
     return status;
 }
@@ -392,6 +372,7 @@ asynStatus PSController::writeFloat64(asynUser* asyn, epicsFloat64 value)
     LOAD_ASYN_ADDRESS;
     float temp = (float) value;
 
+    setEthernetState(ETHERNET_ENABLE);
     asynStatus status = doRegisterIO(address, COMMAND_WRITE, reinterpret_cast<u32*>(&temp));
 
     std::cout << address << " - " << status << std::endl;
