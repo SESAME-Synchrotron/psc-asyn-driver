@@ -26,7 +26,8 @@ using std::find;
 
 #pragma pack(2)
 
-#define LOOP_LIMIT 10000
+#define LOOP_LIMIT 10
+#define FSM_LOOP_LIMIT 2000
 #define MAX_ADDRESSES       256
 #define PACKET_LENGTH   10
 #define TCP_PACKET_LENGTH   9
@@ -60,8 +61,10 @@ static const char* modes[] = {
     "DEVICE_LOCKED",
     "TRANSIENT",
     "DEVICE_OFF_LOCKED",
+    "N/A",
     "DOWNLOAD_DATA",
     "SAVE_DATA",
+    "N/A",
     "MODIFY_DATA"
 };
 

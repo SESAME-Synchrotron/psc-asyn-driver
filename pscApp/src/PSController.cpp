@@ -26,17 +26,17 @@ PSController::PSController(const char* name, const char* ip_port)
         return;
     }
 
-    status = drvAsynIPPortConfigure("TCP", tcp_host.c_str(), 1, 0, 0);
-    if (status != asynSuccess) {
-        cout << "Could not create port " << tcp_host << endl;
-        return;
-    }
-
-    status = pasynOctetSyncIO->connect("TCP", 1, &this->blockIO, NULL);
-    if(status != asynSuccess) {
-        cout << "Could not connect to TCP port: " << ip_port << endl;
-        return;
-    }
+//    status = drvAsynIPPortConfigure("TCP", tcp_host.c_str(), 1, 0, 0);
+//    if (status != asynSuccess) {
+//        cout << "Could not create port " << tcp_host << endl;
+//        return;
+//    }
+//
+//    status = pasynOctetSyncIO->connect("TCP", 1, &this->blockIO, NULL);
+//    if(status != asynSuccess) {
+//        cout << "Could not connect to TCP port: " << ip_port << endl;
+//        return;
+//    }
 
     createParam("i_1", asynParamInt32,   &ps[0]);
     createParam("i_2", asynParamInt32,   &ps[1]);
@@ -60,122 +60,115 @@ asynStatus PSController::readInt32Array(asynUser *asyn, epicsInt32 *value,
 {
     LOAD_ASYN_ADDRESS;
 
+	asynStatus status;
 	u32 mode;
-	int status;
-	int counter = 0;
-    int reason;
-    size_t rx_bytes;
-    size_t tx_bytes;
-
-    char tx_array[TCP_PACKET_LENGTH];
-	char rx_array[256 * 4];
-
-    static const u32 zero = 0;
-
-	ZERO(tx_array);
-	ZERO(rx_array);
-	state_t state = STATE_INIT;
-	state_t next_state;
+    u32 i = 0;
+    u32 zero = 0;
+    int counter = 0;
 
     setEthernetState(ETHERNET_ENABLE);
-	while (state != STATE_DEVICE_OFF)
-	{
-        switch (state)
-        {
-            case STATE_INIT:
-                // status = doRegisterIO(ADDRESS_DATA_TRANSFER_INIT, COMMAND_WRITE, (u32*) &address);
-                status = writeRegister(ADDRESS_DATA_TRANSFER_INIT, (u32) address);
-                if (status != asynSuccess)
-                    next_state = STATE_ERROR;
-                else
-                    next_state = STATE_ENTER_TRANSIENT;
-                break;
 
-            case STATE_ENTER_TRANSIENT:
-                // status = doRegisterIO(ADDRESS_SYSTEM_OPERATING_STATE, COMMAND_READ, &mode);
-                status = readRegister(ADDRESS_SYSTEM_OPERATING_STATE, &mode);
-                printf("mode: %s\n", modes[mode]);
-                if (status != PSC_OK)
-                    next_state = STATE_ERROR;
-                else if (mode != MODE_TRANSIENT && mode != MODE_MODIFY_DATA)
-                    next_state = STATE_ENTER_TRANSIENT;
-                else
-                    next_state = STATE_EXIT_TRANSIENT;
-                break;
-
-            case STATE_EXIT_TRANSIENT:
-                status = doRegisterIO(ADDRESS_SYSTEM_OPERATING_STATE, COMMAND_READ, &mode);
-                if (status != PSC_OK)
-                    next_state = STATE_ERROR;
-                else if (mode == MODE_TRANSIENT)
-                    next_state = STATE_EXIT_TRANSIENT;
-                else
-                    next_state = STATE_DATA_TRANSFER;
-                break;
-
-            case STATE_DATA_TRANSFER:
-            	memcpy(tx_array + 0, &COMMAND_READ, sizeof(u8));
-            	memcpy(tx_array + 1, &zero, sizeof(u32));
-            	memcpy(tx_array + 5, &nElements, sizeof(u32));
-                status = pasynOctetSyncIO->writeRead(this->blockIO, 
-                                                     tx_array, TCP_PACKET_LENGTH, 
-                                                     rx_array, 1024, 2, 
-                                                     &tx_bytes, &rx_bytes, &reason);
-                if(status != asynSuccess || 
-                   tx_bytes != TCP_PACKET_LENGTH || rx_bytes != 1024) {
-                    printf("Status: %d | Reason: %d | Bytes: %lu - %lu\n", 
-                            status, reason, tx_bytes, rx_bytes);
-                    next_state = STATE_ERROR;
-                }
-                else {
-                    memcpy(value, rx_array, sizeof(rx_array));
-                    *nIn = (rx_bytes / sizeof(u32));
-                    next_state = STATE_END_TRANSFER;
-                }
-                break;
-
-            case STATE_END_TRANSFER:
-                status = doRegisterIO(ADDRESS_DATA_TRANSFER_INIT, COMMAND_WRITE, const_cast<u32*>(&zero));
-                if (status != PSC_OK)
-                    next_state = STATE_ERROR;
-                else
-                    next_state = STATE_WAIT_DEVICE_OFF;
-                break;
-
-            case STATE_WAIT_DEVICE_OFF:
-                status = doRegisterIO(ADDRESS_SYSTEM_OPERATING_STATE, COMMAND_READ, &mode);
-                if (status != PSC_OK)
-                    next_state = STATE_ERROR;
-                else if (mode != MODE_MONITOR && mode != MODE_DEVICE_OFF)
-                    next_state = STATE_WAIT_DEVICE_OFF;
-                else
-                    next_state = STATE_DEVICE_OFF;
-                break;
-
-            default:
-                goto exit;
-                break;
-        }
-
-        counter++;
-		usleep(1000);
-		if (next_state != state) {
-			printf("%- 25s -> %s \n", state_names[state], state_names[next_state]);
-			counter = 0;
-		}
-
-		if (counter >= LOOP_LIMIT) {
-			printf("State loop limit reached. [ %s ]\n", state_names[state]);
-			status = -1;
-			break;
-		}
-
-		state = next_state;
+    // Write sector and initialize data transfer.
+    // status = writeRegister(ADDRESS_DATA_TRANSFER_INIT, (u32) address);
+    printf("writing sector %d\n", address);
+    status = doRegisterIO(ADDRESS_DATA_TRANSFER_INIT, COMMAND_WRITE, (u32*) &address);
+    if (status != asynSuccess) {
+        printf("%s:%d: unable to init data transfer\n", __func__, __LINE__);
+        return asynError;
     }
 
-exit:
-    if (status != 0)
+    // Enter transient mode
+    do {
+        // status = readRegister(ADDRESS_SYSTEM_OPERATING_STATE, &mode);
+        status = doRegisterIO(ADDRESS_SYSTEM_OPERATING_STATE, COMMAND_READ, &mode);
+        printf("enter transient: mode[%d] = %s\n", mode, modes[mode]);
+        if (status != asynSuccess) {
+            printf("%s:%d: unable to read state\n", __func__, __LINE__);
+            return asynError;
+        }
+        usleep(1000);
+    } while (mode != MODE_TRANSIENT && mode != MODE_MODIFY_DATA && counter++ < LOOP_LIMIT);
+    if (counter >= LOOP_LIMIT) {
+        printf("%s:%d: enter transient mode timeout.\n", __func__, __LINE__);
         return asynError;
+    }
+
+    // Exit transient mode
+    counter = 0;
+    if (mode == MODE_TRANSIENT) {
+        do {
+            // status = readRegister(ADDRESS_SYSTEM_OPERATING_STATE, &mode);
+            status = doRegisterIO(ADDRESS_SYSTEM_OPERATING_STATE, COMMAND_READ, &mode);
+            printf("exit transient\n");
+            if (status != asynSuccess) {
+                printf("%s:%d: unable to read state\n", __func__, __LINE__);
+                return asynError;
+            }
+            usleep(1000);
+        } while (mode == MODE_TRANSIENT && counter++ < LOOP_LIMIT);
+        if (counter >= LOOP_LIMIT) {
+            printf("%s:%d: exit transient mode timeout. mode[%d] = %s\n", __func__, __LINE__, mode, modes[mode]);
+            return asynError;
+        }
+    }
+
+    // Iterate over data
+    mode = 0;
+    for(i = 0; i < nElements; i++) {
+
+        // Write index
+        // status = writeRegister(ADDRESS_DATA_SOURCE, (u32) i);
+        status = doRegisterIO(ADDRESS_DATA_SOURCE, COMMAND_WRITE, (u32*) &i);
+        if (status != asynSuccess) {
+            printf("%s:%d: unable to set data index\n", __func__, __LINE__);
+            return asynError;
+        }
+
+        // Wait for index written
+        counter = 0;
+        do {
+            // status = readRegister(ADDRESS_DATA_SOURCE, &mode);
+            status = doRegisterIO(ADDRESS_DATA_SOURCE, COMMAND_READ, &mode);
+            printf("index write: %u - %u\n", i, mode);
+            if (status != asynSuccess) {
+                printf("%s:%d: unable to read data index\n", __func__, __LINE__);
+                return asynError;
+            }
+        } while (mode != i && counter++ < LOOP_LIMIT);
+        if (counter > LOOP_LIMIT) {
+            printf("%s:%d: index readback timeout.\n", __func__, __LINE__);
+            return asynError;
+        }
+
+        // Read data
+        status = doRegisterIO(ADDRESS_DATA_TRANSFER, COMMAND_READ, (u32*) &value[i]);
+        if (status != asynSuccess) {
+            printf("%s:%d: unable to read data[%d]\n", __func__, __LINE__, i);
+            return asynError;
+        }
+    }
+
+    // End data transfer.
+    // status = writeRegister(ADDRESS_DATA_TRANSFER_INIT, 0);
+    status = doRegisterIO(ADDRESS_DATA_TRANSFER_INIT, COMMAND_WRITE, &zero);
+    if (status != asynSuccess) {
+        printf("%s:%d: unable to end data transfer\n", __func__, __LINE__);
+        return status;
+    }
+
+    // Wait for reset or device off
+    counter = 0;
+    do {
+        // status = readRegister(ADDRESS_SYSTEM_OPERATING_STATE, &mode);
+        status = doRegisterIO(ADDRESS_SYSTEM_OPERATING_STATE, COMMAND_READ, &mode);
+        printf("mode off: mode[%d] = %s\n", mode, modes[mode]);
+        if (status != asynSuccess) {
+            printf("%s:%d: unable to read state\n", __func__, __LINE__);
+            return status;
+        }
+        usleep(1000);
+    } while (mode != MODE_MONITOR && mode != MODE_DEVICE_OFF && counter++ < LOOP_LIMIT);
+
     return asynSuccess;
 }
 
@@ -317,7 +310,8 @@ asynStatus PSController::writeInt32Array(asynUser *asyn, epicsInt32 *value,
 			counter = 0;
 		}
 
-		if (counter >= LOOP_LIMIT) {
+        printf("State loop counter: %d\n", counter);
+		if (counter >= FSM_LOOP_LIMIT) {
 			printf("State loop limit reached. [ %s ]\n", state_names[state]);
 			status = asynError;
 			break;
