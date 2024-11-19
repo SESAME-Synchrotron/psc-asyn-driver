@@ -26,8 +26,7 @@ using std::find;
 
 #pragma pack(2)
 
-#define LOOP_LIMIT 10
-#define FSM_LOOP_LIMIT 2000
+#define LOOP_LIMIT 4000
 #define MAX_ADDRESSES       256
 #define PACKET_LENGTH   10
 #define TCP_PACKET_LENGTH   9
@@ -80,6 +79,10 @@ static const char* modes[] = {
     getAddress(asyn, &address); \
 
 #define ZERO(buffer) memset(buffer, 0, sizeof(buffer));
+
+#define LOG(message, ...) \
+        printf("%s:%d: " message "\n", __func__, __LINE__, ##__VA_ARGS__); \
+
 
 typedef uint32_t u32;
 typedef uint16_t u16;
