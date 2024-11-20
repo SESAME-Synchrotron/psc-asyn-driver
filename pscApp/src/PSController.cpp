@@ -68,7 +68,7 @@ asynStatus PSController::readInt32Array(asynUser *asyn, epicsInt32 *value,
 
     int counter = 0;
 
-    // setEthernetState(ETHERNET_ENABLE);
+    setEthernetState(ETHERNET_ENABLE);
 
     // Write sector and initialize data transfer.
     printf("writing sector %d\n", address);
@@ -82,7 +82,7 @@ asynStatus PSController::readInt32Array(asynUser *asyn, epicsInt32 *value,
     // Enter transient mode
     do {
         status = doRegisterIO(ADDRESS_SYSTEM_OPERATING_STATE, COMMAND_READ, &mode);
-        printf("enter transient: mode = %s\n", modes[mode]);
+        LOG("enter transient from: %s", modes[mode]);
         if (status != asynSuccess) {
             printf("%s:%d: unable to read state\n", __func__, __LINE__);
             return asynError;
@@ -94,6 +94,7 @@ asynStatus PSController::readInt32Array(asynUser *asyn, epicsInt32 *value,
         printf("%s:%d: enter transient mode timeout.\n", __func__, __LINE__);
         return asynError;
     }
+    LOG("entered mode %s", modes[mode]);
 
     // Exit transient mode
     counter = 0;
@@ -106,15 +107,16 @@ asynStatus PSController::readInt32Array(asynUser *asyn, epicsInt32 *value,
                 printf("%s:%d: unable to read state\n", __func__, __LINE__);
                 return asynError;
             }
-            usleep(1000);
+            usleep(10000);
         } while (mode == MODE_TRANSIENT && counter++ < LOOP_LIMIT);
         if (counter >= LOOP_LIMIT) {
-            printf("%s:%d: exit transient mode timeout. mode[%d] = %s\n", 
-                    __func__, __LINE__, mode, modes[mode]);
+            printf("%s:%d: exit transient mode timeout. mode = %s\n", 
+                    __func__, __LINE__, modes[mode]);
             return asynError;
         }
     }
 
+    LOG("uploading data ...");
     // Iterate over data
     mode = 0;
     for(i = 0; i < nElements; i++) {
@@ -190,8 +192,9 @@ asynStatus PSController::writeInt32Array(asynUser *asyn, epicsInt32 *value,
     u32 init   = (length << 8)|(offset & 0xff);
     u32 zero   = 0;
 
+    LOG("enabling ethernet ... \n");
     setEthernetState(ETHERNET_ENABLE);
-    LOG("ethernet enabled.");
+    LOG("ethernet enabled.\n");
 
     // Write sector and initialize data transfer.
     status = doRegisterIO(ADDRESS_DATA_TRANSFER_INIT, COMMAND_WRITE, &init);
