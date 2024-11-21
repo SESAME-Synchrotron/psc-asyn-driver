@@ -70,8 +70,30 @@ asynStatus PSController::readInt32Array(asynUser *asyn, epicsInt32 *value,
 
     setEthernetState(ETHERNET_ENABLE);
 
+    // Resetting data transfer.
+    LOG("resetting block transfer");
+    status = doRegisterIO(ADDRESS_DATA_TRANSFER_INIT, COMMAND_WRITE, &zero);
+    if (status != asynSuccess) {
+        LOG("unable to reset block transfer");
+        return status;
+    }
+
+    counter = 0;
+    do {
+        status = doRegisterIO(ADDRESS_SYSTEM_OPERATING_STATE, COMMAND_READ, &mode);
+        if (status != asynSuccess) {
+            LOG("unable to read state");
+            return status;
+        }
+        usleep(1000);
+    } while (mode != MODE_MONITOR && mode != MODE_DEVICE_OFF && counter++ < LOOP_LIMIT);
+    if (counter >= LOOP_LIMIT) {
+        LOG("wait for device off timeout");
+        return asynError;
+    }
+    LOG("block transfer reset done");
+
     // Write sector and initialize data transfer.
-    printf("writing sector %d\n", address);
     status = doRegisterIO(ADDRESS_DATA_TRANSFER_INIT, COMMAND_WRITE, &offset);
     if (status != asynSuccess) {
         printf("%s:%d: unable to init data transfer\n", __func__, __LINE__);
@@ -80,18 +102,18 @@ asynStatus PSController::readInt32Array(asynUser *asyn, epicsInt32 *value,
     LOG("Wrote sector %d", offset);
 
     // Enter transient mode
+    LOG("entering transient mode");
     do {
         status = doRegisterIO(ADDRESS_SYSTEM_OPERATING_STATE, COMMAND_READ, &mode);
-        LOG("enter transient from: %s", modes[mode]);
         if (status != asynSuccess) {
-            printf("%s:%d: unable to read state\n", __func__, __LINE__);
+            LOG("unable to read state");
             return asynError;
         }
         usleep(1000);
     } while (mode != MODE_TRANSIENT && mode != MODE_MODIFY_DATA && 
              counter++ < LOOP_LIMIT);
     if (counter >= LOOP_LIMIT) {
-        printf("%s:%d: enter transient mode timeout.\n", __func__, __LINE__);
+        LOG("transient mode timeout.");
         return asynError;
     }
     LOG("entered mode %s", modes[mode]);
@@ -99,21 +121,21 @@ asynStatus PSController::readInt32Array(asynUser *asyn, epicsInt32 *value,
     // Exit transient mode
     counter = 0;
     if (mode == MODE_TRANSIENT) {
+        LOG("exiting transient mode");
         do {
             status = doRegisterIO(ADDRESS_SYSTEM_OPERATING_STATE, 
                                   COMMAND_READ, &mode);
-            printf("exit transient\n");
             if (status != asynSuccess) {
-                printf("%s:%d: unable to read state\n", __func__, __LINE__);
+                LOG("unable to read state");
                 return asynError;
             }
             usleep(10000);
         } while (mode == MODE_TRANSIENT && counter++ < LOOP_LIMIT);
         if (counter >= LOOP_LIMIT) {
-            printf("%s:%d: exit transient mode timeout. mode = %s\n", 
-                    __func__, __LINE__, modes[mode]);
+            LOG("exit transient mode timeout, mode = %s", modes[mode]);
             return asynError;
         }
+        LOG("exited transient mode to %s", modes[mode]);
     }
 
     LOG("uploading data ...");
@@ -124,7 +146,7 @@ asynStatus PSController::readInt32Array(asynUser *asyn, epicsInt32 *value,
         // Write index
         status = doRegisterIO(ADDRESS_DATA_SOURCE, COMMAND_WRITE, (u32*) &i);
         if (status != asynSuccess) {
-            printf("%s:%d: unable to set data index\n", __func__, __LINE__);
+            LOG("unable to write index %u", i);
             return asynError;
         }
 
@@ -132,25 +154,25 @@ asynStatus PSController::readInt32Array(asynUser *asyn, epicsInt32 *value,
         counter = 0;
         do {
             status = doRegisterIO(ADDRESS_DATA_SOURCE, COMMAND_READ, &mode);
-            printf("index write: %u - %u\n", i, mode);
             if (status != asynSuccess) {
-                printf("%s:%d: unable to read data index\n", __func__, __LINE__);
+                LOG("unable to check index %u", i);
                 return asynError;
             }
             usleep(1000);
         } while (mode != i && counter++ < LOOP_LIMIT);
         if (counter > LOOP_LIMIT) {
-            printf("%s:%d: index readback timeout.\n", __func__, __LINE__);
+            LOG("index readback timeout");
             return asynError;
         }
 
         // Read data
         status = doRegisterIO(ADDRESS_DATA_TRANSFER, COMMAND_READ, (u32*) &value[i]);
         if (status != asynSuccess) {
-            printf("%s:%d: unable to read data[%d]\n", __func__, __LINE__, i);
+            LOG("unable to read data at %u", i);
             return asynError;
         }
     }
+    LOG("upload completed.");
 
     // End data transfer.
     status = doRegisterIO(ADDRESS_DATA_TRANSFER_INIT, COMMAND_WRITE, &zero);
@@ -158,14 +180,14 @@ asynStatus PSController::readInt32Array(asynUser *asyn, epicsInt32 *value,
         printf("%s:%d: unable to end data transfer\n", __func__, __LINE__);
         return status;
     }
+    LOG("data transfer ended, waiting for device off/reset");
 
     // Wait for reset or device off
     counter = 0;
     do {
         status = doRegisterIO(ADDRESS_SYSTEM_OPERATING_STATE, COMMAND_READ, &mode);
-        printf("mode off: mode[%d] = %s\n", mode, modes[mode]);
         if (status != asynSuccess) {
-            printf("%s:%d: unable to read state\n", __func__, __LINE__);
+            LOG("unable to read state");
             return status;
         }
         usleep(1000);
@@ -174,6 +196,7 @@ asynStatus PSController::readInt32Array(asynUser *asyn, epicsInt32 *value,
         LOG("wait for device off timeout");
         return asynError;
     }
+    LOG("device off, block transfer completed");
 
     return asynSuccess;
 }
@@ -192,15 +215,35 @@ asynStatus PSController::writeInt32Array(asynUser *asyn, epicsInt32 *value,
     u32 init   = (length << 8)|(offset & 0xff);
     u32 zero   = 0;
 
-    LOG("enabling ethernet ... \n");
     setEthernetState(ETHERNET_ENABLE);
-    LOG("ethernet enabled.\n");
+
+    // Resetting data transfer.
+    LOG("resetting block transfer");
+    status = doRegisterIO(ADDRESS_DATA_TRANSFER_INIT, COMMAND_WRITE, &zero);
+    if (status != asynSuccess) {
+        LOG("unable to reset block transfer");
+        return status;
+    }
+
+    counter = 0;
+    do {
+        status = doRegisterIO(ADDRESS_SYSTEM_OPERATING_STATE, COMMAND_READ, &mode);
+        if (status != asynSuccess) {
+            LOG("unable to read state");
+            return status;
+        }
+        usleep(1000);
+    } while (mode != MODE_MONITOR && mode != MODE_DEVICE_OFF && counter++ < LOOP_LIMIT);
+    if (counter >= LOOP_LIMIT) {
+        LOG("wait for device off timeout");
+        return asynError;
+    }
+    LOG("block transfer reset done");
 
     // Write sector and initialize data transfer.
     status = doRegisterIO(ADDRESS_DATA_TRANSFER_INIT, COMMAND_WRITE, &init);
     if (status != asynSuccess) {
-        printf("%s:%d: could not initialize data transfer\n", 
-                __func__, __LINE__);
+        LOG("could not initialize data transfer for sector %d.", offset);
         return asynError;
     }
     LOG("Wrote sector %d", offset);
@@ -210,28 +253,28 @@ asynStatus PSController::writeInt32Array(asynUser *asyn, epicsInt32 *value,
         status = doRegisterIO(ADDRESS_SYSTEM_OPERATING_STATE, 
                               COMMAND_READ, &mode);
         if (status != asynSuccess) {
-            printf("%s:%d: could not read system state\n", __func__, __LINE__);
+            LOG("could not read system state");
             return asynError;
         }
         usleep(1000);
     } while (mode != MODE_DOWNLOAD_DATA && counter++ < LOOP_LIMIT);
     if (counter >= LOOP_LIMIT) {
-        printf("%s:%d: could not enter download mode. mode = %s\n",
-                __func__, __LINE__, modes[mode]);
+        LOG("could not enter download mode, mode = %s",
+                mode >= 0 && mode <= 11 ? modes[mode] : "N/A");
         return asynError;
     }
     LOG("entered download mode.");
 
     // Write data.
-    for(size_t i = 0; i < nElements; i++) {
+    size_t i = 0;
+    for(i = 0; i < nElements; i++) {
 
         // Write word
         status = doRegisterIO(ADDRESS_DATA_TRANSFER, 
                               COMMAND_WRITE, 
                               (u32*) &value[i]);
         if (status != asynSuccess) {
-            printf("%s:%d: could not write data at index %zu\n", 
-                    __func__, __LINE__, i);
+            LOG("could not write data at %zu", i);
             return asynError;
         }
 
@@ -240,32 +283,29 @@ asynStatus PSController::writeInt32Array(asynUser *asyn, epicsInt32 *value,
         do {
             status = doRegisterIO(ADDRESS_DATA_TRANSFER, COMMAND_READ, &mode);
             if (status != asynSuccess) {
-                printf("%s:%d: could not read data at index %zu\n", 
-                        __func__, __LINE__, i);
+                LOG("could not read data at %zu", i);
                 return asynError;
             }
         } while (mode != (u32) value[i] && counter++ < LOOP_LIMIT);
         if (counter >= LOOP_LIMIT) {
-            printf("%s:%d: could not readback data at index %zu\n",
-                    __func__, __LINE__, i);
+            LOG("could not readback data at %zu", i);
             return asynError;
         }
-
-        LOG("wrote index: %zu", i);
     }
+    LOG("wrote %zu words out of %zu", i + 1, nElements);
 
     // Exit download mode.
     do {
         status = doRegisterIO(ADDRESS_SYSTEM_OPERATING_STATE, COMMAND_READ, 
                               &mode);
         if (status != asynSuccess) {
-            printf("%s:%d: could not read system state\n", __func__, __LINE__);
+            LOG("could not read system state");
             return asynError;
         }
     } while (mode == MODE_DOWNLOAD_DATA && counter++ < LOOP_LIMIT);
     if (counter >= LOOP_LIMIT) {
-        printf("%s:%d: could not exit download mode. mode = %s", 
-                __func__, __LINE__, modes[mode]);
+        LOG("could not exit download mode, mode = %s",
+                mode >= 0 && mode <= 11 ? modes[mode] : "N/A");
         return asynError;
     }
     LOG("exited download mode.");
@@ -273,7 +313,7 @@ asynStatus PSController::writeInt32Array(asynUser *asyn, epicsInt32 *value,
     // Copy to flash.
     status = doRegisterIO(ADDRESS_DATA_BLOCK_DESTINATION, COMMAND_WRITE, &init);
     if (status != asynSuccess) {
-        printf("%s:%d: could not copy data to flash.\n", __func__, __LINE__);
+        LOG("could not copy data to flash");
         return asynError;
     }
     LOG("copy to flash started.");
@@ -284,13 +324,12 @@ asynStatus PSController::writeInt32Array(asynUser *asyn, epicsInt32 *value,
         status = doRegisterIO(ADDRESS_SYSTEM_OPERATING_STATE, COMMAND_READ, 
                               &mode);
         if (status != asynSuccess) {
-            printf("%s:%d: could not read system state to copy to flash.\n", 
-                    __func__, __LINE__);
+            LOG("could not read system state");
             return asynError;
         }
     } while (mode != MODE_SAVE_DATA && counter++ < LOOP_LIMIT);
     if (counter >= LOOP_LIMIT) {
-        printf("%s:%d: could not enter save data mode.\n", __func__, __LINE__);
+        LOG("could not enter save data mode");
         return asynError;
     }
     LOG("entered save data mode.");
@@ -301,26 +340,24 @@ asynStatus PSController::writeInt32Array(asynUser *asyn, epicsInt32 *value,
         status = doRegisterIO(ADDRESS_SYSTEM_OPERATING_STATE, COMMAND_READ,
                               &mode);
         if (status != asynSuccess) {
-            printf("%s:%d: could not read system state to copy to flash.\n",
-                    __func__, __LINE__);
+            LOG("could not read system state");
             return asynError;
         }
         usleep(1000);
     } while (mode == MODE_SAVE_DATA && counter++ < LOOP_LIMIT);
-    LOG("mode: %s | counter: %d", modes[mode], counter);
     if (counter >= LOOP_LIMIT) {
-        printf("%s:%d: could not copy data to flash.\n", __func__, __LINE__);
+        LOG("copy to flash failed");
         return asynError;
     }
-    LOG("exited save data mode.");
+    LOG("copy to flash done, exited save data mode.");
  
     // End transfer.
     status = doRegisterIO(ADDRESS_DATA_TRANSFER_INIT, COMMAND_WRITE, &zero);
     if (status != asynSuccess) {
-        printf("%s:%d: could not end data transfer.\n", __func__, __LINE__);
+        LOG("could not end data transfer");
         return asynError;
     }
-    LOG("data transfer ended.");
+    LOG("data transfer ended, waiting for device off/reset");
 
     // Wait for device off.
     counter = 0;
@@ -328,18 +365,16 @@ asynStatus PSController::writeInt32Array(asynUser *asyn, epicsInt32 *value,
         status = doRegisterIO(ADDRESS_SYSTEM_OPERATING_STATE, COMMAND_READ, 
                               &mode);
         if (status != asynSuccess) {
-            printf("%s:%d: could not read system state to copy to flash.\n", 
-                    __func__, __LINE__);
+            LOG("could not read system state");
             return asynError;
         }
-        LOG("mode = %s", modes[mode]);
         usleep(1000);
     } while (mode != MODE_DEVICE_OFF && counter++ < LOOP_LIMIT);
     if (counter >= LOOP_LIMIT) {
-        printf("%s:%d: could not wait for device off..\n", __func__, __LINE__);
+        LOG("device could not enter OFF mode");
         return asynError;
     }
-    LOG("device is off.");
+    LOG("device is off, block write completed");
 
 	return asynSuccess;
 }
