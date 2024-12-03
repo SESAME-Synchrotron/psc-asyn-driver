@@ -386,39 +386,45 @@ asynStatus PSController::readInt32(asynUser* asyn, epicsInt32* value)
 
 asynStatus PSController::readFloat64(asynUser* asyn, epicsFloat64* value)
 {
-    u32   raw;
-    float temp;
+    raw32 raw;
+    asynStatus status;
    
     LOAD_ASYN_ADDRESS;
-    
-    asynStatus status = doRegisterIO(address, COMMAND_READ, &raw);
-    memcpy(&temp, &raw, sizeof(u32));
-    *value = temp;
+    status = doRegisterIO(address, COMMAND_READ, &raw.i_value);
+
+    if (status == asynSuccess)
+        *value = raw.f_value;
 
     return status;
 }
 
 asynStatus PSController::writeInt32(asynUser* asyn, epicsInt32 value)
 {
+    asynStatus status;
+    u32 temp;
+
     LOAD_ASYN_ADDRESS;
-    u32 temp = (u32) value;
+    temp = (u32) value;
 
     setEthernetState(ETHERNET_ENABLE);
-    asynStatus status = doRegisterIO(address, COMMAND_WRITE, &temp);
+    status = doRegisterIO(address, COMMAND_WRITE, &temp);
     return status;
 }
 
 asynStatus PSController::writeFloat64(asynUser* asyn, epicsFloat64 value)
 {
+    asynStatus status;
+    raw32 raw;
+    
     LOAD_ASYN_ADDRESS;
-    float temp = (float) value;
+    raw.f_value = (float) value;
 
     setEthernetState(ETHERNET_ENABLE);
-    asynStatus status = doRegisterIO(address, COMMAND_WRITE, reinterpret_cast<u32*>(&temp));
+    status = doRegisterIO(address, COMMAND_WRITE, &raw.i_value);
     return status;
 }
 
-inline asynStatus PSController::writeRegister(u16 address, u32 value)
+asynStatus PSController::writeRegister(u16 address, u32 value)
 {
     return doRegisterIO(address, COMMAND_WRITE, &value);
 }
@@ -455,8 +461,10 @@ asynStatus PSController::doRegisterIO(u16 address, int command, u32* value)
                                          tx_array, PACKET_LENGTH, 
                                          rx_array, PACKET_LENGTH, 1, 
                                          &tx_bytes, &rx_bytes, &reason);
-    if(status != asynSuccess || tx_bytes != PACKET_LENGTH || rx_bytes != PACKET_LENGTH) {
-        printf("Status: %d | Reason: %d | Bytes: %lu - %lu\n", status, reason, tx_bytes, rx_bytes);
+    if(status != asynSuccess || tx_bytes != PACKET_LENGTH ||
+                                rx_bytes != PACKET_LENGTH) {
+        LOG("io failed for adddress %d | status = %d | tx = %lu | rx = %lu", 
+             address, status, tx_bytes, rx_bytes);
         return asynError;
     }
 
@@ -488,8 +496,10 @@ asynStatus PSController::setEthernetState(u32 state)
                                          tx_array, PACKET_LENGTH, 
                                          rx_array, PACKET_LENGTH, 1, 
                                          &tx_bytes, &rx_bytes, &reason);
-    if(status != asynSuccess || tx_bytes != PACKET_LENGTH || rx_bytes != PACKET_LENGTH) {
-        printf("Ethernet faile. Status: %d | Reason: %d | Bytes: %lu - %lu\n", status, reason, tx_bytes, rx_bytes);
+    if(status != asynSuccess || tx_bytes != PACKET_LENGTH || 
+                                rx_bytes != PACKET_LENGTH) {
+        LOG("ethernet priority failed with status %d, tx = %lu, rx = %lu",
+             status, tx_bytes, rx_bytes);
         return asynError;
     }
 

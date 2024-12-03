@@ -8,9 +8,6 @@
 
 #include <string>
 #include <iostream>
-#include <vector>
-#include <algorithm>
-#include <iterator>
 
 #include <epicsExport.h>
 #include <asynPortDriver.h>
@@ -149,6 +146,11 @@ typedef enum
 
     STATE_ERROR
 } state_t;
+
+typedef union {
+    u32   i_value;
+    float f_value;
+} raw32;
 
 class PSController : public asynPortDriver
 {
