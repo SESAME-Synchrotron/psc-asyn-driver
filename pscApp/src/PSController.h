@@ -21,8 +21,6 @@
 using std::string;
 using std::cout;
 using std::endl;
-using std::vector;
-using std::find;
 
 #pragma pack(2)
 
@@ -52,7 +50,10 @@ using std::find;
 #define MODE_SAVE_DATA          9
 #define MODE_MODIFY_DATA        11
 
-static const char* modes[] = {
+const int modes_count = 12;
+const int states_count = 17;
+
+static std::string modes[modes_count] = {
     "MONITOR",
     "DEVICE_OFF",
     "DEVICE_ON",
@@ -65,6 +66,29 @@ static const char* modes[] = {
     "SAVE_DATA",
     "N/A",
     "MODIFY_DATA"
+};
+
+static std::string state_names[states_count] = {
+    "STATE_INIT",
+    "STATE_CHECK_DOWNLOAD_MODE",
+    "STATE_DATA_TRANSFER",
+    "STATE_VERIFY_DATA",
+    "STATE_EXIT_DOWNLOAD_MODE",
+    "STATE_COPY_TO_FLASH",
+    "STATE_WAIT_SAVE",
+    "STATE_SAVE_FINISHED",
+    "STATE_END_TRANSFER",
+    "STATE_WAIT_DEVICE_OFF",
+    "STATE_DEVICE_OFF",
+
+    "STATE_CHECK_DATA_TRANSFER",
+    "STATE_ENTER_TRANSIENT",
+    "STATE_EXIT_TRANSIENT",
+    "STATE_REQUEST_DATA",
+
+    "STATE_STOP_LOGGER",
+
+    "STATE_ERROR"
 };
 
 #define PSC_OK		0
@@ -126,29 +150,6 @@ typedef enum
     STATE_ERROR
 } state_t;
 
-static const char* state_names[] = {
-    "STATE_INIT",
-    "STATE_CHECK_DOWNLOAD_MODE",
-    "STATE_DATA_TRANSFER",
-    "STATE_VERIFY_DATA",
-    "STATE_EXIT_DOWNLOAD_MODE",
-    "STATE_COPY_TO_FLASH",
-    "STATE_WAIT_SAVE",
-    "STATE_SAVE_FINISHED",
-    "STATE_END_TRANSFER",
-    "STATE_WAIT_DEVICE_OFF",
-    "STATE_DEVICE_OFF",
-
-    "STATE_CHECK_DATA_TRANSFER",
-    "STATE_ENTER_TRANSIENT",
-    "STATE_EXIT_TRANSIENT",
-    "STATE_REQUEST_DATA",
-
-    "STATE_STOP_LOGGER",
-
-    "STATE_ERROR"
-};
-
 class PSController : public asynPortDriver
 {
 public:
@@ -157,7 +158,8 @@ public:
     asynStatus writeInt32(asynUser* asyn, epicsInt32 value);
     asynStatus readFloat64(asynUser* asyn, epicsFloat64* value);
     asynStatus writeFloat64(asynUser* asyn, epicsFloat64 value);
-    asynStatus readUInt32Digital(asynUser *asyn, epicsUInt32 *value, epicsUInt32 mask);
+    asynStatus readUInt32Digital(asynUser *asyn, epicsUInt32 *value, 
+                                 epicsUInt32 mask);
     asynStatus readInt32Array(asynUser *pasynUser, epicsInt32 *value, 
                               size_t nElements, size_t *nIn);
     asynStatus writeInt32Array(asynUser *pasynUser, epicsInt32 *value, 
@@ -167,7 +169,6 @@ protected:
 
 private:
     asynUser* registerIO;
-    asynUser* blockIO;
     asynUser* asyn;
     asynStatus writeRegister(u16 address, u32 value);
     asynStatus readRegister(u16 address, u32* value);

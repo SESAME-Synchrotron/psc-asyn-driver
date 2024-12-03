@@ -4,15 +4,16 @@ PSController::PSController(const char* name, const char* ip_port)
     : asynPortDriver(
             name,
             MAX_ADDRESSES,
-            asynInt32Mask | asynFloat64Mask | asynUInt32DigitalMask | asynInt32ArrayMask | asynDrvUserMask,
-            asynInt32Mask | asynFloat64Mask | asynUInt32DigitalMask | asynInt32ArrayMask,
+            asynInt32Mask      | asynFloat64Mask | asynUInt32DigitalMask | 
+            asynInt32ArrayMask | asynDrvUserMask,
+            asynInt32Mask      | asynFloat64Mask | asynUInt32DigitalMask | 
+            asynInt32ArrayMask,
             ASYN_MULTIDEVICE | ASYN_CANBLOCK,
             1, 0, 0)
 {
     int status;
     this->ip_port = ip_port;
     std::string udp_host = std::string(ip_port) + " UDP";
-    std::string tcp_host = std::string(ip_port) + " TCP";
 
     status = drvAsynIPPortConfigure("UDP", udp_host.c_str(), 1, 0, 0);
     if (status != asynSuccess) {
@@ -25,18 +26,6 @@ PSController::PSController(const char* name, const char* ip_port)
         cout << "Could not connect to port " << udp_host << endl;
         return;
     }
-
-//    status = drvAsynIPPortConfigure("TCP", tcp_host.c_str(), 1, 0, 0);
-//    if (status != asynSuccess) {
-//        cout << "Could not create port " << tcp_host << endl;
-//        return;
-//    }
-//
-//    status = pasynOctetSyncIO->connect("TCP", 1, &this->blockIO, NULL);
-//    if(status != asynSuccess) {
-//        cout << "Could not connect to TCP port: " << ip_port << endl;
-//        return;
-//    }
 
     createParam("i_1", asynParamInt32,   &ps[0]);
     createParam("i_2", asynParamInt32,   &ps[1]);
@@ -116,7 +105,7 @@ asynStatus PSController::readInt32Array(asynUser *asyn, epicsInt32 *value,
         LOG("transient mode timeout.");
         return asynError;
     }
-    LOG("entered mode %s", modes[mode]);
+    LOG("entered mode %s", modes[mode].c_str());
 
     // Exit transient mode
     counter = 0;
@@ -132,10 +121,10 @@ asynStatus PSController::readInt32Array(asynUser *asyn, epicsInt32 *value,
             usleep(10000);
         } while (mode == MODE_TRANSIENT && counter++ < LOOP_LIMIT);
         if (counter >= LOOP_LIMIT) {
-            LOG("exit transient mode timeout, mode = %s", modes[mode]);
+            LOG("exit transient mode timeout, mode = %s", modes[mode].c_str());
             return asynError;
         }
-        LOG("exited transient mode to %s", modes[mode]);
+        LOG("exited transient mode to %s", modes[mode].c_str());
     }
 
     LOG("uploading data ...");
@@ -260,7 +249,7 @@ asynStatus PSController::writeInt32Array(asynUser *asyn, epicsInt32 *value,
     } while (mode != MODE_DOWNLOAD_DATA && counter++ < LOOP_LIMIT);
     if (counter >= LOOP_LIMIT) {
         LOG("could not enter download mode, mode = %s",
-                mode >= 0 && mode <= 11 ? modes[mode] : "N/A");
+                mode >= 0 && mode <= 11 ? modes[mode].c_str() : "N/A");
         return asynError;
     }
     LOG("entered download mode.");
@@ -305,7 +294,7 @@ asynStatus PSController::writeInt32Array(asynUser *asyn, epicsInt32 *value,
     } while (mode == MODE_DOWNLOAD_DATA && counter++ < LOOP_LIMIT);
     if (counter >= LOOP_LIMIT) {
         LOG("could not exit download mode, mode = %s",
-                mode >= 0 && mode <= 11 ? modes[mode] : "N/A");
+                mode >= 0 && mode <= 11 ? modes[mode].c_str() : "N/A");
         return asynError;
     }
     LOG("exited download mode.");
@@ -426,9 +415,6 @@ asynStatus PSController::writeFloat64(asynUser* asyn, epicsFloat64 value)
 
     setEthernetState(ETHERNET_ENABLE);
     asynStatus status = doRegisterIO(address, COMMAND_WRITE, reinterpret_cast<u32*>(&temp));
-
-    std::cout << address << " - " << status << std::endl;
-
     return status;
 }
 
