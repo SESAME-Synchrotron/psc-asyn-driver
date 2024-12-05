@@ -44,6 +44,11 @@ PSController::PSController(const char* name, const char* ip_port)
     setEthernetState(ETHERNET_ENABLE);
 }
 
+PSController::~PSController()
+{
+    pasynOctetSyncIO->disconnect(this->registerIO);
+}
+
 asynStatus PSController::readInt32Array(asynUser *asyn, epicsInt32 *value,
                                         size_t nElements, size_t *nIn)
 {
@@ -386,15 +391,12 @@ asynStatus PSController::readInt32(asynUser* asyn, epicsInt32* value)
 
 asynStatus PSController::readFloat64(asynUser* asyn, epicsFloat64* value)
 {
-    raw32 raw;
+    raw32      raw;
     asynStatus status;
    
     LOAD_ASYN_ADDRESS;
-    status = doRegisterIO(address, COMMAND_READ, &raw.i_value);
-
-    if (status == asynSuccess)
-        *value = raw.f_value;
-
+    status = readRegister(address, &raw.i_value);
+    *value = raw.f_value;
     return status;
 }
 
@@ -407,7 +409,7 @@ asynStatus PSController::writeInt32(asynUser* asyn, epicsInt32 value)
     temp = (u32) value;
 
     setEthernetState(ETHERNET_ENABLE);
-    status = doRegisterIO(address, COMMAND_WRITE, &temp);
+    status = writeRegister(address, temp);
     return status;
 }
 
@@ -420,7 +422,7 @@ asynStatus PSController::writeFloat64(asynUser* asyn, epicsFloat64 value)
     raw.f_value = (float) value;
 
     setEthernetState(ETHERNET_ENABLE);
-    status = doRegisterIO(address, COMMAND_WRITE, &raw.i_value);
+    status = writeRegister(address, raw.i_value);
     return status;
 }
 

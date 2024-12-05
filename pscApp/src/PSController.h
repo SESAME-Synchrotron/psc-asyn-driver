@@ -156,6 +156,8 @@ class PSController : public asynPortDriver
 {
 public:
     PSController(const char* name, const char* ip_port);
+    ~PSController();
+
     asynStatus readInt32(asynUser* asyn, epicsInt32* value);
     asynStatus writeInt32(asynUser* asyn, epicsInt32 value);
     asynStatus readFloat64(asynUser* asyn, epicsFloat64* value);
