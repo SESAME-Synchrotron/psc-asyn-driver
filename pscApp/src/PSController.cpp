@@ -74,13 +74,17 @@ asynStatus PSController::readInt32Array(asynUser *asyn, epicsInt32 *value,
 
     counter = 0;
     do {
-        status = doRegisterIO(ADDRESS_SYSTEM_OPERATING_STATE, COMMAND_READ, &mode);
+        status = doRegisterIO(ADDRESS_SYSTEM_OPERATING_STATE,
+                              COMMAND_READ,
+                              &mode);
         if (status != asynSuccess) {
             LOG("unable to read state");
             return status;
         }
         usleep(1000);
-    } while (mode != MODE_MONITOR && mode != MODE_DEVICE_OFF && counter++ < LOOP_LIMIT);
+    } while (mode != MODE_MONITOR    && 
+             mode != MODE_DEVICE_OFF && 
+             counter++ < LOOP_LIMIT);
     if (counter >= LOOP_LIMIT) {
         LOG("wait for device off timeout");
         return asynError;
@@ -90,7 +94,7 @@ asynStatus PSController::readInt32Array(asynUser *asyn, epicsInt32 *value,
     // Write sector and initialize data transfer.
     status = doRegisterIO(ADDRESS_DATA_TRANSFER_INIT, COMMAND_WRITE, &offset);
     if (status != asynSuccess) {
-        printf("%s:%d: unable to init data transfer\n", __func__, __LINE__);
+        LOG("unable to start data transfer");
         return asynError;
     }
     LOG("Wrote sector %d", offset);
@@ -98,13 +102,15 @@ asynStatus PSController::readInt32Array(asynUser *asyn, epicsInt32 *value,
     // Enter transient mode
     LOG("entering transient mode");
     do {
-        status = doRegisterIO(ADDRESS_SYSTEM_OPERATING_STATE, COMMAND_READ, &mode);
+        status = doRegisterIO(ADDRESS_SYSTEM_OPERATING_STATE,
+                              COMMAND_READ, &mode);
         if (status != asynSuccess) {
             LOG("unable to read state");
             return asynError;
         }
         usleep(1000);
-    } while (mode != MODE_TRANSIENT && mode != MODE_MODIFY_DATA && 
+    } while (mode != MODE_TRANSIENT   &&
+             mode != MODE_MODIFY_DATA &&
              counter++ < LOOP_LIMIT);
     if (counter >= LOOP_LIMIT) {
         LOG("transient mode timeout.");
@@ -160,7 +166,8 @@ asynStatus PSController::readInt32Array(asynUser *asyn, epicsInt32 *value,
         }
 
         // Read data
-        status = doRegisterIO(ADDRESS_DATA_TRANSFER, COMMAND_READ, (u32*) &value[i]);
+        status = doRegisterIO(ADDRESS_DATA_TRANSFER,
+                              COMMAND_READ, (u32*) &value[i]);
         if (status != asynSuccess) {
             LOG("unable to read data at %u", i);
             return asynError;
@@ -179,13 +186,16 @@ asynStatus PSController::readInt32Array(asynUser *asyn, epicsInt32 *value,
     // Wait for reset or device off
     counter = 0;
     do {
-        status = doRegisterIO(ADDRESS_SYSTEM_OPERATING_STATE, COMMAND_READ, &mode);
+        status = doRegisterIO(ADDRESS_SYSTEM_OPERATING_STATE,
+                              COMMAND_READ, &mode);
         if (status != asynSuccess) {
             LOG("unable to read state");
             return status;
         }
         usleep(1000);
-    } while (mode != MODE_MONITOR && mode != MODE_DEVICE_OFF && counter++ < LOOP_LIMIT);
+    } while (mode != MODE_MONITOR &&
+             mode != MODE_DEVICE_OFF &&
+             counter++ < LOOP_LIMIT);
     if (counter >= LOOP_LIMIT) {
         LOG("wait for device off timeout");
         return asynError;
@@ -286,7 +296,7 @@ asynStatus PSController::writeInt32Array(asynUser *asyn, epicsInt32 *value,
             return asynError;
         }
     }
-    LOG("wrote %zu words out of %zu", i + 1, nElements);
+    LOG("wrote %zu words out of %zu", i, nElements);
 
     // Exit download mode.
     do {
@@ -355,6 +365,7 @@ asynStatus PSController::writeInt32Array(asynUser *asyn, epicsInt32 *value,
 
     // Wait for device off.
     counter = 0;
+    mode = 1;
     do {
         status = doRegisterIO(ADDRESS_SYSTEM_OPERATING_STATE, COMMAND_READ, 
                               &mode);
@@ -365,7 +376,7 @@ asynStatus PSController::writeInt32Array(asynUser *asyn, epicsInt32 *value,
         usleep(1000);
     } while (mode != MODE_DEVICE_OFF && counter++ < LOOP_LIMIT);
     if (counter >= LOOP_LIMIT) {
-        LOG("device could not enter OFF mode");
+        LOG("device could not enter OFF mode. mode = %s", modes[mode].c_str());
         return asynError;
     }
     LOG("device is off, block write completed");
