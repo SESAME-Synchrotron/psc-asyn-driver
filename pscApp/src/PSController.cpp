@@ -4,10 +4,10 @@ PSController::PSController(const char* name, const char* ip_port)
     : asynPortDriver(
             name,
             MAX_ADDRESSES,
-            asynInt32Mask      | asynFloat64Mask | asynUInt32DigitalMask | 
-            asynInt32ArrayMask | asynDrvUserMask,
-            asynInt32Mask      | asynFloat64Mask | asynUInt32DigitalMask | 
-            asynInt32ArrayMask,
+            asynInt32Mask      | asynFloat64Mask      | asynUInt32DigitalMask |
+            asynInt32ArrayMask | asynFloat32ArrayMask | asynDrvUserMask,
+            asynInt32Mask      | asynFloat64Mask      | asynUInt32DigitalMask |
+            asynInt32ArrayMask | asynFloat32ArrayMask,
             ASYN_MULTIDEVICE | ASYN_CANBLOCK,
             1, 0, 0)
 {
@@ -51,6 +51,19 @@ PSController::~PSController()
 
 asynStatus PSController::readInt32Array(asynUser *asyn, epicsInt32 *value,
                                         size_t nElements, size_t *nIn)
+{
+    return readArray(asyn, value, nElements, nIn);
+}
+
+asynStatus PSController::readFloat32Array(asynUser *asyn, epicsFloat32 *value,
+                                        size_t nElements, size_t *nIn)
+{
+    return readArray(asyn, value, nElements, nIn);
+}
+
+template <typename T>
+asynStatus PSController::readArray(asynUser *asyn, T* value, size_t nElements,
+                                   size_t *nIn, bool is_float)
 {
     LOAD_ASYN_ADDRESS;
 
@@ -166,12 +179,15 @@ asynStatus PSController::readInt32Array(asynUser *asyn, epicsInt32 *value,
         }
 
         // Read data
+        u32 temp;
         status = doRegisterIO(ADDRESS_DATA_TRANSFER,
-                              COMMAND_READ, (u32*) &value[i]);
+                              COMMAND_READ, &temp);
         if (status != asynSuccess) {
             LOG("unable to read data at %u", i);
             return asynError;
         }
+
+        memcpy(&value[i], &temp, sizeof(u32));
     }
     LOG("upload completed.");
 
