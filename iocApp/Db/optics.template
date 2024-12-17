@@ -1119,17 +1119,28 @@ record(waveform, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):getWaveform0")
 {
     alias("$(ALIAS):getWaveform0")
     field(DTYP, "asynFloat32ArrayIn")
-    field(INP,  "@asyn($(DEVICE) 14) parameters_1")
+    field(INP,  "@asyn($(DEVICE) 14) waveforms_1")
     field(PINI, "NO")
     field(FTVL, "FLOAT")
     field(NELM, "10000")
 }
 
+record(waveform, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):setWaveform0")
+{
+    alias("$(ALIAS):setWaveform0")
+    field(DTYP, "asynFloat32ArrayOut")
+    field(INP,  "@asyn($(DEVICE) 14) write_waveforms_1")
+    field(PINI, "NO")
+    field(FTVL, "FLOAT")
+    field(NELM, "10000")
+}
+
+
 record(waveform, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):getWaveform1")
 {
     alias("$(ALIAS):getWaveform1")
     field(DTYP, "asynFloat32ArrayIn")
-    field(INP,  "@asyn($(DEVICE) 13) parameters_1")
+    field(INP,  "@asyn($(DEVICE) 13) waveforms_1")
     field(PINI, "NO")
     field(FTVL, "FLOAT")
     field(NELM, "10000")
@@ -1139,7 +1150,7 @@ record(waveform, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):getWaveform2")
 {
     alias("$(ALIAS):getWaveform2")
     field(DTYP, "asynFloat32ArrayIn")
-    field(INP,  "@asyn($(DEVICE) 12) parameters_1")
+    field(INP,  "@asyn($(DEVICE) 12) waveforms_1")
     field(PINI, "NO")
     field(FTVL, "FLOAT")
     field(NELM, "10000")
@@ -1149,7 +1160,7 @@ record(waveform, "SR-PS-GW$(GATEWAY)-CH$(CHANNEL):getWaveform3")
 {
     alias("$(ALIAS):getWaveform3")
     field(DTYP, "asynFloat32ArrayIn")
-    field(INP,  "@asyn($(DEVICE) 11) parameters_1")
+    field(INP,  "@asyn($(DEVICE) 11) waveforms_1")
     field(PINI, "NO")
     field(FTVL, "FLOAT")
     field(NELM, "10000")

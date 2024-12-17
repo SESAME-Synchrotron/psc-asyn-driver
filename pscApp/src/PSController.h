@@ -164,15 +164,19 @@ public:
     asynStatus writeFloat64(asynUser* asyn, epicsFloat64 value);
     asynStatus readUInt32Digital(asynUser *asyn, epicsUInt32 *value, 
                                  epicsUInt32 mask);
+
     asynStatus readInt32Array(asynUser *pasynUser, epicsInt32 *value, 
                               size_t nElements, size_t *nIn);
     asynStatus writeInt32Array(asynUser *pasynUser, epicsInt32 *value, 
                                size_t nElements);
     asynStatus readFloat32Array(asynUser *pasynUser, epicsFloat32 *value, 
                               size_t nElements, size_t *nIn);
+    asynStatus writeFloat32Array(asynUser *pasynUser, epicsFloat32 *value,
+                              size_t nElements);
+
 
 protected:
-    int ps[11];
+    int ps[13];
 
 private:
     asynUser* registerIO;
@@ -183,6 +187,10 @@ private:
     template <typename T>
     asynStatus readArray(asynUser *asyn, T* value, size_t nElements,
                          size_t *nIn, bool is_float = false);
+
+    template <typename T>
+    asynStatus writeArray(asynUser *asyn, T* value, size_t nElements,
+                         bool is_float = false);
 
     asynStatus doRegisterIO(u16 address, int command, u32* value);
     asynStatus setEthernetState(u32 state);

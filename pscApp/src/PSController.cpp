@@ -38,8 +38,10 @@ PSController::PSController(const char* name, const char* ip_port)
 	createParam("b_2", asynParamUInt32Digital, &ps[7]);
 	createParam("b_3", asynParamUInt32Digital, &ps[8]);
 
-    createParam("parameters_1", asynParamInt32Array, &ps[9]);
+    createParam("parameters_1",       asynParamInt32Array, &ps[9]);
     createParam("write_parameters_1", asynParamInt32Array, &ps[10]);
+    createParam("waveforms_1",        asynParamFloat32Array, &ps[11]);
+    createParam("write_waveforms_1",  asynParamFloat32Array, &ps[12]);
 
     setEthernetState(ETHERNET_ENABLE);
 }
@@ -217,12 +219,26 @@ asynStatus PSController::readArray(asynUser *asyn, T* value, size_t nElements,
         return asynError;
     }
     LOG("device off, block transfer completed");
+    *nIn = nElements;
 
     return asynSuccess;
 }
 
 asynStatus PSController::writeInt32Array(asynUser *asyn, epicsInt32 *value,
                                         size_t nElements)
+{
+    return writeArray(asyn, value, nElements);
+}
+
+asynStatus PSController::writeFloat32Array(asynUser *asyn, epicsFloat32 *value,
+                                        size_t nElements)
+{
+    return writeArray(asyn, value, nElements);
+}
+
+template <typename T>
+asynStatus PSController::writeArray(asynUser *asyn, T* value, size_t nElements,
+                                    bool is_float)
 {
     LOAD_ASYN_ADDRESS;
 
@@ -306,7 +322,7 @@ asynStatus PSController::writeInt32Array(asynUser *asyn, epicsInt32 *value,
                 LOG("could not read data at %zu", i);
                 return asynError;
             }
-        } while (mode != (u32) value[i] && counter++ < LOOP_LIMIT);
+        } while (mode != *(u32*) &value[i] && counter++ < LOOP_LIMIT);
         if (counter >= LOOP_LIMIT) {
             LOG("could not readback data at %zu", i);
             return asynError;
