@@ -474,17 +474,13 @@ asynStatus PSController::doRegisterIO(u16 address, int command, u32* value)
 {
     int status;
     int reason;
-    // int function = asyn->reason;
     size_t tx_bytes;
     size_t rx_bytes;
-    // const char* parameter_name;
     packet_t tx;
     packet_t rx; 
     char tx_array[PACKET_LENGTH];
     char rx_array[PACKET_LENGTH];
 
-    // getParamName(function, &parameter_name);
-    // u16 ps = parameter_name[ strlen(parameter_name) - 1 ] - 0x30;
     u16 ps = 1;
 
     tx = { 
