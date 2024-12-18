@@ -27,21 +27,8 @@ PSController::PSController(const char* name, const char* ip_port)
         return;
     }
 
-    createParam("i_1", asynParamInt32,   &ps[0]);
-    createParam("i_2", asynParamInt32,   &ps[1]);
-    createParam("i_3", asynParamInt32,   &ps[2]);
-    createParam("f_1", asynParamFloat64, &ps[3]);
-    createParam("f_2", asynParamFloat64, &ps[4]);
-    createParam("f_3", asynParamFloat64, &ps[5]);
-
-	createParam("b_1", asynParamUInt32Digital, &ps[6]);
-	createParam("b_2", asynParamUInt32Digital, &ps[7]);
-	createParam("b_3", asynParamUInt32Digital, &ps[8]);
-
-    createParam("parameters_1",       asynParamInt32Array, &ps[9]);
-    createParam("write_parameters_1", asynParamInt32Array, &ps[10]);
-    createParam("waveforms_1",        asynParamFloat32Array, &ps[11]);
-    createParam("write_waveforms_1",  asynParamFloat32Array, &ps[12]);
+    createParam("i32", asynParamInt32, &p_i32);
+    createParam("f32", asynParamFloat64, &p_f32);
 
     setEthernetState(ETHERNET_ENABLE);
 }
@@ -426,33 +413,35 @@ asynStatus PSController::readUInt32Digital(asynUser* asyn, epicsUInt32 *value, e
 
 asynStatus PSController::readInt32(asynUser* asyn, epicsInt32* value)
 {
-    LOAD_ASYN_ADDRESS;
+    parameter_t p;
 
-    asynStatus status = doRegisterIO(address, COMMAND_READ, (u32*) value);
+    p = *(parameter_t*) asyn->drvUser;
+    asynStatus status = doRegisterIO(p.address, COMMAND_READ, (u32*) value);
     return status;
 }
 
 asynStatus PSController::readFloat64(asynUser* asyn, epicsFloat64* value)
 {
-    raw32      raw;
-    asynStatus status;
-   
-    LOAD_ASYN_ADDRESS;
-    status = readRegister(address, &raw.i_value);
+    raw32       raw;
+    asynStatus  status;
+    parameter_t p;
+
+    p = *(parameter_t*) asyn->drvUser;
+    status = readRegister(p.address, &raw.i_value);
     *value = raw.f_value;
     return status;
 }
 
 asynStatus PSController::writeInt32(asynUser* asyn, epicsInt32 value)
 {
-    asynStatus status;
-    u32 temp;
+    asynStatus  status;
+    u32         temp;
+    parameter_t p;
 
-    LOAD_ASYN_ADDRESS;
+    p = *(parameter_t*) asyn->drvUser;
     temp = (u32) value;
-
     setEthernetState(ETHERNET_ENABLE);
-    status = writeRegister(address, temp);
+    status = writeRegister(p.address, temp);
     return status;
 }
 
@@ -460,12 +449,14 @@ asynStatus PSController::writeFloat64(asynUser* asyn, epicsFloat64 value)
 {
     asynStatus status;
     raw32 raw;
-    
-    LOAD_ASYN_ADDRESS;
+    parameter_t p;
+
+    p = *(parameter_t*) asyn->drvUser;
+   
     raw.f_value = (float) value;
 
     setEthernetState(ETHERNET_ENABLE);
-    status = writeRegister(address, raw.i_value);
+    status = writeRegister(p.address, raw.i_value);
     return status;
 }
 
@@ -483,17 +474,18 @@ asynStatus PSController::doRegisterIO(u16 address, int command, u32* value)
 {
     int status;
     int reason;
-    int function = asyn->reason;
+    // int function = asyn->reason;
     size_t tx_bytes;
     size_t rx_bytes;
-    const char* parameter_name;
+    // const char* parameter_name;
     packet_t tx;
     packet_t rx; 
     char tx_array[PACKET_LENGTH];
     char rx_array[PACKET_LENGTH];
 
-    getParamName(function, &parameter_name);
-    u16 ps = parameter_name[ strlen(parameter_name) - 1 ] - 0x30;
+    // getParamName(function, &parameter_name);
+    // u16 ps = parameter_name[ strlen(parameter_name) - 1 ] - 0x30;
+    u16 ps = 1;
 
     tx = { 
         .status  = 0x0, 
@@ -550,3 +542,67 @@ asynStatus PSController::setEthernetState(u32 state)
 
     return asynSuccess;
 }
+
+asynStatus PSController::drvUserCreate(asynUser* pasynUser, const char* drvInfo,
+                                     const char** pptypeName, size_t* psize)
+{
+    parameter_t* info = new parameter_t();
+    std::string driver_info = drvInfo;
+    std::string driver_input = "";
+    std::string substring = "";
+    std::string parameter = "";
+
+    size_t next_pos;
+    size_t pos;
+
+    pos = driver_info.find(" ");
+    if (pos == std::string::npos) {
+        LOG("could not parse parameter name, drvinfo: %s", drvInfo);
+        return asynError;
+    }
+
+    parameter = driver_info.substr(0, pos);
+    driver_input = driver_info.substr(pos + 1);
+    pos = driver_input.find("address");
+    if (pos == std::string::npos)
+    {
+        LOG("address not found in drvInfo: %s", drvInfo);
+        return asynError;
+    }
+    next_pos  = driver_input.find_first_of(' ', pos + 1);
+    if (next_pos == std::string::npos)
+        next_pos = driver_input.length();
+    substring = driver_input.substr(pos + 8, next_pos - (pos + 8));
+    info->address = std::atoi(substring.c_str());
+
+    pos = driver_input.find("ps");
+    if (pos == std::string::npos)
+    {
+        LOG("ps not found in drvInfo: %s", drvInfo);
+        return asynError;
+    }
+    next_pos  = driver_input.find_first_of(' ', pos + 1);
+    if (next_pos == std::string::npos)
+        next_pos = driver_input.length();
+    substring = driver_input.substr(pos + 3, next_pos - (pos + 3));
+    info->ps = std::atoi(substring.c_str());
+
+    pos = driver_input.find("offset");
+    if (pos == std::string::npos)
+    {
+        info->offset = 0;
+    }
+    else
+    {
+        next_pos = driver_input.find_first_of(' ', pos + 1);
+        if (next_pos == std::string::npos)
+            next_pos = driver_input.length();
+        substring = driver_input.substr(pos + 3, next_pos - (pos + 3));
+        info->offset = std::atoi(substring.c_str());
+    }
+
+    pasynUser->drvUser = info;
+    return asynPortDriver::drvUserCreate(pasynUser, parameter.c_str(), pptypeName,
+                                         psize);
+}
+

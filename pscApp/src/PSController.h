@@ -120,6 +120,13 @@ typedef struct
     u32 data;
 } packet_t;
 
+typedef struct
+{
+    u8   address;
+    u8   ps;
+    u32  offset;
+} parameter_t;
+
 typedef enum
 {
     STATE_INIT = 0,
@@ -174,9 +181,13 @@ public:
     asynStatus writeFloat32Array(asynUser *pasynUser, epicsFloat32 *value,
                               size_t nElements);
 
+    asynStatus drvUserCreate(asynUser* pasynUser, const char* drvInfo,
+                             const char** pptypeName, size_t* psize);
 
 protected:
     int ps[13];
+    int p_i32;
+    int p_f32;
 
 private:
     asynUser* registerIO;
