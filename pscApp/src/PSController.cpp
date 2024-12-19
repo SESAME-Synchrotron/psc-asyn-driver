@@ -27,10 +27,11 @@ PSController::PSController(const char* name, const char* ip_port)
         return;
     }
 
-    createParam("i32",      asynParamInt32,        &p_i32);
-    createParam("f32",      asynParamFloat64,      &p_f32);
-    createParam("i32array", asynParamInt32Array,   &p_i32array);
-    createParam("f32array", asynParamFloat32Array, &p_f32array);
+    createParam("i32",      asynParamInt32,         &p_i32);
+    createParam("f32",      asynParamFloat64,       &p_f32);
+    createParam("b16",      asynParamUInt32Digital, &p_b16);
+    createParam("i32array", asynParamInt32Array,    &p_i32array);
+    createParam("f32array", asynParamFloat32Array,  &p_f32array);
 }
 
 PSController::~PSController()
@@ -400,9 +401,8 @@ asynStatus PSController::writeArray(asynUser *asyn, T* value, size_t nElements)
 
 asynStatus PSController::readUInt32Digital(asynUser* asyn, epicsUInt32 *value, epicsUInt32 mask)
 {
-    LOAD_ASYN_ADDRESS;
-
-	return readRegister(address, (u32*) value);
+    parameter_t info = *(parameter_t*) asyn->drvUser;
+	return readRegister(info.address, (u32*) value);
 }
 
 asynStatus PSController::readInt32(asynUser* asyn, epicsInt32* value)

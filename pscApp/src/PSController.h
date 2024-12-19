@@ -187,6 +187,7 @@ public:
 protected:
     int p_i32;
     int p_f32;
+    int p_b16;
     int p_i32array;
     int p_f32array;
 
