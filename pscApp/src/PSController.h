@@ -185,9 +185,10 @@ public:
                              const char** pptypeName, size_t* psize);
 
 protected:
-    int ps[13];
     int p_i32;
     int p_f32;
+    int p_i32array;
+    int p_f32array;
 
 private:
     asynUser* registerIO;

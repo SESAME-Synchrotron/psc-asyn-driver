@@ -27,8 +27,10 @@ PSController::PSController(const char* name, const char* ip_port)
         return;
     }
 
-    createParam("i32", asynParamInt32, &p_i32);
-    createParam("f32", asynParamFloat64, &p_f32);
+    createParam("i32",      asynParamInt32,        &p_i32);
+    createParam("f32",      asynParamFloat64,      &p_f32);
+    createParam("i32array", asynParamInt32Array,   &p_i32array);
+    createParam("f32array", asynParamFloat32Array, &p_f32array);
 }
 
 PSController::~PSController()
@@ -52,13 +54,13 @@ template <typename T>
 asynStatus PSController::readArray(asynUser *asyn, T* value, size_t nElements,
                                    size_t *nIn)
 {
-    LOAD_ASYN_ADDRESS;
-
 	asynStatus status;
+
+    parameter_t info = *(parameter_t*) asyn->drvUser;
 	u32 mode;
     u32 i = 0;
     u32 zero = 0;
-    u32 offset = (u32) address;
+    u32 sector = (u32) info.address;
 
     int counter = 0;
 
@@ -94,12 +96,12 @@ asynStatus PSController::readArray(asynUser *asyn, T* value, size_t nElements,
     LOG("block transfer reset done");
 
     // Write sector and initialize data transfer.
-    status = writeRegister(ADDRESS_DATA_TRANSFER_INIT, offset);
+    status = writeRegister(ADDRESS_DATA_TRANSFER_INIT, sector);
     if (status != asynSuccess) {
         LOG("unable to start data transfer");
         return asynError;
     }
-    LOG("Wrote sector %d", offset);
+    LOG("Wrote sector %d", sector);
 
     // Enter transient mode
     LOG("entering transient mode");
@@ -144,9 +146,9 @@ asynStatus PSController::readArray(asynUser *asyn, T* value, size_t nElements,
     for(i = 0; i < nElements; i++) {
 
         // Write index
-        status = writeRegister(ADDRESS_DATA_SOURCE, i);
+        status = writeRegister(ADDRESS_DATA_SOURCE, i + info.offset);
         if (status != asynSuccess) {
-            LOG("unable to write index %u", i);
+            LOG("unable to write index %u sector %u", i, info.address);
             return asynError;
         }
 
@@ -155,7 +157,7 @@ asynStatus PSController::readArray(asynUser *asyn, T* value, size_t nElements,
         do {
             status = readRegister(ADDRESS_DATA_SOURCE, &mode);
             if (status != asynSuccess) {
-                LOG("unable to check index %u", i);
+                LOG("unable to check index %u sector %u", i, info.address);
                 return asynError;
             }
             usleep(1000);
@@ -222,15 +224,14 @@ asynStatus PSController::writeFloat32Array(asynUser *asyn, epicsFloat32 *value,
 template <typename T>
 asynStatus PSController::writeArray(asynUser *asyn, T* value, size_t nElements)
 {
-    LOAD_ASYN_ADDRESS;
-
-	u32 mode;
 	asynStatus status;
 	int counter = 0;
 
-    u32 offset = address;
+    parameter_t info = *(parameter_t*)(asyn->drvUser);
+	u32 mode;
+    u32 sector = info.address;
     u32 length = nElements;
-    u32 init   = (length << 8)|(offset & 0xff);
+    u32 init   = (length << 8)|(sector & 0xff);
     u32 zero   = 0;
 
     status = writeRegister(ADDRESS_PRIORITY, ETHERNET_ENABLE);
@@ -267,10 +268,10 @@ asynStatus PSController::writeArray(asynUser *asyn, T* value, size_t nElements)
     // Write sector and initialize data transfer.
     status = writeRegister(ADDRESS_DATA_TRANSFER_INIT, init);
     if (status != asynSuccess) {
-        LOG("could not initialize data transfer for sector %d.", offset);
+        LOG("could not initialize data transfer for sector %d.", sector);
         return asynError;
     }
-    LOG("Wrote sector %d", offset);
+    LOG("Wrote sector %d", sector);
 
     // Enter download mode.
     do {
@@ -293,7 +294,7 @@ asynStatus PSController::writeArray(asynUser *asyn, T* value, size_t nElements)
     for(i = 0; i < nElements; i++) {
 
         // Write word
-        status = writeRegister(ADDRESS_DATA_TRANSFER, (u32) value[i]);
+        status = writeRegister(ADDRESS_DATA_TRANSFER, *(u32*) &value[i]);
         if (status != asynSuccess) {
             LOG("could not write data at %zu", i);
             return asynError;
