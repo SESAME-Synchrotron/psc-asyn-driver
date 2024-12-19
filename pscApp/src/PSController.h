@@ -185,15 +185,12 @@ private:
     asynStatus readRegister(u16 address, u32* value);
 
     template <typename T>
-    asynStatus readArray(asynUser *asyn, T* value, size_t nElements,
-                         size_t *nIn, bool is_float = false);
+    asynStatus readArray(asynUser *asyn, T* value, size_t nElements, size_t *nIn);
 
     template <typename T>
-    asynStatus writeArray(asynUser *asyn, T* value, size_t nElements,
-                         bool is_float = false);
+    asynStatus writeArray(asynUser *asyn, T* value, size_t nElements);
 
     asynStatus doRegisterIO(u16 address, int command, u32* value);
-    asynStatus setEthernetState(u32 state);
 
     std::string ip_port;
 };

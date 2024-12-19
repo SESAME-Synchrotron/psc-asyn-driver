@@ -42,8 +42,6 @@ PSController::PSController(const char* name, const char* ip_port)
     createParam("write_parameters_1", asynParamInt32Array, &ps[10]);
     createParam("waveforms_1",        asynParamFloat32Array, &ps[11]);
     createParam("write_waveforms_1",  asynParamFloat32Array, &ps[12]);
-
-    setEthernetState(ETHERNET_ENABLE);
 }
 
 PSController::~PSController()
@@ -65,7 +63,7 @@ asynStatus PSController::readFloat32Array(asynUser *asyn, epicsFloat32 *value,
 
 template <typename T>
 asynStatus PSController::readArray(asynUser *asyn, T* value, size_t nElements,
-                                   size_t *nIn, bool is_float)
+                                   size_t *nIn)
 {
     LOAD_ASYN_ADDRESS;
 
@@ -77,7 +75,11 @@ asynStatus PSController::readArray(asynUser *asyn, T* value, size_t nElements,
 
     int counter = 0;
 
-    setEthernetState(ETHERNET_ENABLE);
+    status = writeRegister(ADDRESS_PRIORITY, ETHERNET_ENABLE);
+    if (status != asynSuccess) {
+        LOG("ethernet priority error");
+        return asynError;
+    }
 
     // Resetting data transfer.
     LOG("resetting block transfer");
@@ -231,8 +233,7 @@ asynStatus PSController::writeFloat32Array(asynUser *asyn, epicsFloat32 *value,
 }
 
 template <typename T>
-asynStatus PSController::writeArray(asynUser *asyn, T* value, size_t nElements,
-                                    bool is_float)
+asynStatus PSController::writeArray(asynUser *asyn, T* value, size_t nElements)
 {
     LOAD_ASYN_ADDRESS;
 
@@ -245,7 +246,11 @@ asynStatus PSController::writeArray(asynUser *asyn, T* value, size_t nElements,
     u32 init   = (length << 8)|(offset & 0xff);
     u32 zero   = 0;
 
-    setEthernetState(ETHERNET_ENABLE);
+    status = writeRegister(ADDRESS_PRIORITY, ETHERNET_ENABLE);
+    if (status != asynSuccess) {
+        LOG("ethernet priority error");
+        return asynError;
+    }
 
     // Resetting data transfer.
     LOG("resetting block transfer");
@@ -409,16 +414,14 @@ asynStatus PSController::readUInt32Digital(asynUser* asyn, epicsUInt32 *value, e
 {
     LOAD_ASYN_ADDRESS;
 
-    asynStatus status = doRegisterIO(address, COMMAND_READ, (u32*) value);
-	return status;
+	return readRegister(address, (u32*) value);
 }
 
 asynStatus PSController::readInt32(asynUser* asyn, epicsInt32* value)
 {
     LOAD_ASYN_ADDRESS;
 
-    asynStatus status = doRegisterIO(address, COMMAND_READ, (u32*) value);
-    return status;
+	return readRegister(address, (u32*) value);
 }
 
 asynStatus PSController::readFloat64(asynUser* asyn, epicsFloat64* value)
@@ -440,7 +443,11 @@ asynStatus PSController::writeInt32(asynUser* asyn, epicsInt32 value)
     LOAD_ASYN_ADDRESS;
     temp = (u32) value;
 
-    setEthernetState(ETHERNET_ENABLE);
+    status = writeRegister(ADDRESS_PRIORITY, ETHERNET_ENABLE);
+    if (status != asynSuccess) {
+        LOG("ethernet priority error");
+        return asynError;
+    }
     status = writeRegister(address, temp);
     return status;
 }
@@ -449,11 +456,15 @@ asynStatus PSController::writeFloat64(asynUser* asyn, epicsFloat64 value)
 {
     asynStatus status;
     raw32 raw;
-    
+
     LOAD_ASYN_ADDRESS;
     raw.f_value = (float) value;
 
-    setEthernetState(ETHERNET_ENABLE);
+    status = writeRegister(ADDRESS_PRIORITY, ETHERNET_ENABLE);
+    if (status != asynSuccess) {
+        LOG("ethernet priority error");
+        return asynError;
+    }
     status = writeRegister(address, raw.i_value);
     return status;
 }
@@ -509,33 +520,3 @@ asynStatus PSController::doRegisterIO(u16 address, int command, u32* value)
     return asynSuccess;
 }
 
-asynStatus PSController::setEthernetState(u32 state)
-{
-    int status;
-    int reason;
-    size_t tx_bytes;
-    size_t rx_bytes;
-    char tx_array[PACKET_LENGTH];
-    char rx_array[PACKET_LENGTH];
-    packet_t tx;
-
-    tx = {
-        .status  = 0x0,
-        .command = COMMAND_WRITE,
-        .address = ADDRESS_PRIORITY | (1 << PS_ADDRESS_SHIFT),
-        .data    = state,
-    };
-    memcpy(tx_array, &tx, sizeof(tx_array));
-    status = pasynOctetSyncIO->writeRead(this->registerIO, 
-                                         tx_array, PACKET_LENGTH, 
-                                         rx_array, PACKET_LENGTH, 1, 
-                                         &tx_bytes, &rx_bytes, &reason);
-    if(status != asynSuccess || tx_bytes != PACKET_LENGTH || 
-                                rx_bytes != PACKET_LENGTH) {
-        LOG("ethernet priority failed with status %d, tx = %lu, rx = %lu",
-             status, tx_bytes, rx_bytes);
-        return asynError;
-    }
-
-    return asynSuccess;
-}
