@@ -81,7 +81,7 @@ asynStatus PSController::readArray(asynUser *asyn, T* value, size_t nElements,
 
     // Resetting data transfer.
     LOG("resetting block transfer");
-    status = doRegisterIO(ADDRESS_DATA_TRANSFER_INIT, COMMAND_WRITE, &zero);
+    status = writeRegister(ADDRESS_DATA_TRANSFER_INIT, zero);
     if (status != asynSuccess) {
         LOG("unable to reset block transfer");
         return status;
@@ -89,9 +89,7 @@ asynStatus PSController::readArray(asynUser *asyn, T* value, size_t nElements,
 
     counter = 0;
     do {
-        status = doRegisterIO(ADDRESS_SYSTEM_OPERATING_STATE,
-                              COMMAND_READ,
-                              &mode);
+        status = readRegister(ADDRESS_SYSTEM_OPERATING_STATE, &mode);
         if (status != asynSuccess) {
             LOG("unable to read state");
             return status;
@@ -107,7 +105,7 @@ asynStatus PSController::readArray(asynUser *asyn, T* value, size_t nElements,
     LOG("block transfer reset done");
 
     // Write sector and initialize data transfer.
-    status = doRegisterIO(ADDRESS_DATA_TRANSFER_INIT, COMMAND_WRITE, &offset);
+    status = writeRegister(ADDRESS_DATA_TRANSFER_INIT, offset);
     if (status != asynSuccess) {
         LOG("unable to start data transfer");
         return asynError;
@@ -117,8 +115,7 @@ asynStatus PSController::readArray(asynUser *asyn, T* value, size_t nElements,
     // Enter transient mode
     LOG("entering transient mode");
     do {
-        status = doRegisterIO(ADDRESS_SYSTEM_OPERATING_STATE,
-                              COMMAND_READ, &mode);
+        status = readRegister(ADDRESS_SYSTEM_OPERATING_STATE, &mode);
         if (status != asynSuccess) {
             LOG("unable to read state");
             return asynError;
@@ -138,8 +135,7 @@ asynStatus PSController::readArray(asynUser *asyn, T* value, size_t nElements,
     if (mode == MODE_TRANSIENT) {
         LOG("exiting transient mode");
         do {
-            status = doRegisterIO(ADDRESS_SYSTEM_OPERATING_STATE, 
-                                  COMMAND_READ, &mode);
+            status = readRegister(ADDRESS_SYSTEM_OPERATING_STATE, &mode);
             if (status != asynSuccess) {
                 LOG("unable to read state");
                 return asynError;
@@ -159,7 +155,7 @@ asynStatus PSController::readArray(asynUser *asyn, T* value, size_t nElements,
     for(i = 0; i < nElements; i++) {
 
         // Write index
-        status = doRegisterIO(ADDRESS_DATA_SOURCE, COMMAND_WRITE, (u32*) &i);
+        status = writeRegister(ADDRESS_DATA_SOURCE, i);
         if (status != asynSuccess) {
             LOG("unable to write index %u", i);
             return asynError;
@@ -168,7 +164,7 @@ asynStatus PSController::readArray(asynUser *asyn, T* value, size_t nElements,
         // Wait for index written
         counter = 0;
         do {
-            status = doRegisterIO(ADDRESS_DATA_SOURCE, COMMAND_READ, &mode);
+            status = readRegister(ADDRESS_DATA_SOURCE, &mode);
             if (status != asynSuccess) {
                 LOG("unable to check index %u", i);
                 return asynError;
@@ -182,8 +178,7 @@ asynStatus PSController::readArray(asynUser *asyn, T* value, size_t nElements,
 
         // Read data
         u32 temp;
-        status = doRegisterIO(ADDRESS_DATA_TRANSFER,
-                              COMMAND_READ, &temp);
+        status = readRegister(ADDRESS_DATA_TRANSFER, &temp);
         if (status != asynSuccess) {
             LOG("unable to read data at %u", i);
             return asynError;
@@ -194,7 +189,7 @@ asynStatus PSController::readArray(asynUser *asyn, T* value, size_t nElements,
     LOG("upload completed.");
 
     // End data transfer.
-    status = doRegisterIO(ADDRESS_DATA_TRANSFER_INIT, COMMAND_WRITE, &zero);
+    status = writeRegister(ADDRESS_DATA_TRANSFER_INIT, zero);
     if (status != asynSuccess) {
         printf("%s:%d: unable to end data transfer\n", __func__, __LINE__);
         return status;
@@ -204,8 +199,7 @@ asynStatus PSController::readArray(asynUser *asyn, T* value, size_t nElements,
     // Wait for reset or device off
     counter = 0;
     do {
-        status = doRegisterIO(ADDRESS_SYSTEM_OPERATING_STATE,
-                              COMMAND_READ, &mode);
+        status = readRegister(ADDRESS_SYSTEM_OPERATING_STATE, &mode);
         if (status != asynSuccess) {
             LOG("unable to read state");
             return status;
@@ -255,7 +249,7 @@ asynStatus PSController::writeArray(asynUser *asyn, T* value, size_t nElements,
 
     // Resetting data transfer.
     LOG("resetting block transfer");
-    status = doRegisterIO(ADDRESS_DATA_TRANSFER_INIT, COMMAND_WRITE, &zero);
+    status = writeRegister(ADDRESS_DATA_TRANSFER_INIT, zero);
     if (status != asynSuccess) {
         LOG("unable to reset block transfer");
         return status;
@@ -263,13 +257,15 @@ asynStatus PSController::writeArray(asynUser *asyn, T* value, size_t nElements,
 
     counter = 0;
     do {
-        status = doRegisterIO(ADDRESS_SYSTEM_OPERATING_STATE, COMMAND_READ, &mode);
+        status = readRegister(ADDRESS_SYSTEM_OPERATING_STATE, &mode);
         if (status != asynSuccess) {
             LOG("unable to read state");
             return status;
         }
         usleep(1000);
-    } while (mode != MODE_MONITOR && mode != MODE_DEVICE_OFF && counter++ < LOOP_LIMIT);
+    } while (mode != MODE_MONITOR    &&
+             mode != MODE_DEVICE_OFF &&
+             counter++ < LOOP_LIMIT);
     if (counter >= LOOP_LIMIT) {
         LOG("wait for device off timeout");
         return asynError;
@@ -277,7 +273,7 @@ asynStatus PSController::writeArray(asynUser *asyn, T* value, size_t nElements,
     LOG("block transfer reset done");
 
     // Write sector and initialize data transfer.
-    status = doRegisterIO(ADDRESS_DATA_TRANSFER_INIT, COMMAND_WRITE, &init);
+    status = writeRegister(ADDRESS_DATA_TRANSFER_INIT, init);
     if (status != asynSuccess) {
         LOG("could not initialize data transfer for sector %d.", offset);
         return asynError;
@@ -286,8 +282,7 @@ asynStatus PSController::writeArray(asynUser *asyn, T* value, size_t nElements,
 
     // Enter download mode.
     do {
-        status = doRegisterIO(ADDRESS_SYSTEM_OPERATING_STATE, 
-                              COMMAND_READ, &mode);
+        status = readRegister(ADDRESS_SYSTEM_OPERATING_STATE, &mode);
         if (status != asynSuccess) {
             LOG("could not read system state");
             return asynError;
@@ -306,9 +301,7 @@ asynStatus PSController::writeArray(asynUser *asyn, T* value, size_t nElements,
     for(i = 0; i < nElements; i++) {
 
         // Write word
-        status = doRegisterIO(ADDRESS_DATA_TRANSFER, 
-                              COMMAND_WRITE, 
-                              (u32*) &value[i]);
+        status = writeRegister(ADDRESS_DATA_TRANSFER, (u32) value[i]);
         if (status != asynSuccess) {
             LOG("could not write data at %zu", i);
             return asynError;
@@ -317,7 +310,7 @@ asynStatus PSController::writeArray(asynUser *asyn, T* value, size_t nElements,
         // Wait for word to be written.
         counter = 0;
         do {
-            status = doRegisterIO(ADDRESS_DATA_TRANSFER, COMMAND_READ, &mode);
+            status = readRegister(ADDRESS_DATA_TRANSFER, &mode);
             if (status != asynSuccess) {
                 LOG("could not read data at %zu", i);
                 return asynError;
@@ -332,8 +325,7 @@ asynStatus PSController::writeArray(asynUser *asyn, T* value, size_t nElements,
 
     // Exit download mode.
     do {
-        status = doRegisterIO(ADDRESS_SYSTEM_OPERATING_STATE, COMMAND_READ, 
-                              &mode);
+        status = readRegister(ADDRESS_SYSTEM_OPERATING_STATE, &mode);
         if (status != asynSuccess) {
             LOG("could not read system state");
             return asynError;
@@ -347,7 +339,7 @@ asynStatus PSController::writeArray(asynUser *asyn, T* value, size_t nElements,
     LOG("exited download mode.");
 
     // Copy to flash.
-    status = doRegisterIO(ADDRESS_DATA_BLOCK_DESTINATION, COMMAND_WRITE, &init);
+    status = writeRegister(ADDRESS_DATA_BLOCK_DESTINATION, init);
     if (status != asynSuccess) {
         LOG("could not copy data to flash");
         return asynError;
@@ -357,8 +349,7 @@ asynStatus PSController::writeArray(asynUser *asyn, T* value, size_t nElements,
     // Wait to enter save data mode.
     counter = 0;
     do {
-        status = doRegisterIO(ADDRESS_SYSTEM_OPERATING_STATE, COMMAND_READ, 
-                              &mode);
+        status = readRegister(ADDRESS_SYSTEM_OPERATING_STATE, &mode);
         if (status != asynSuccess) {
             LOG("could not read system state");
             return asynError;
@@ -373,8 +364,7 @@ asynStatus PSController::writeArray(asynUser *asyn, T* value, size_t nElements,
     // Wait to exit save data mode
     counter = 0;
     do {
-        status = doRegisterIO(ADDRESS_SYSTEM_OPERATING_STATE, COMMAND_READ,
-                              &mode);
+        status = readRegister(ADDRESS_SYSTEM_OPERATING_STATE, &mode);
         if (status != asynSuccess) {
             LOG("could not read system state");
             return asynError;
@@ -388,7 +378,7 @@ asynStatus PSController::writeArray(asynUser *asyn, T* value, size_t nElements,
     LOG("copy to flash done, exited save data mode.");
  
     // End transfer.
-    status = doRegisterIO(ADDRESS_DATA_TRANSFER_INIT, COMMAND_WRITE, &zero);
+    status = writeRegister(ADDRESS_DATA_TRANSFER_INIT, zero);
     if (status != asynSuccess) {
         LOG("could not end data transfer");
         return asynError;
@@ -399,8 +389,7 @@ asynStatus PSController::writeArray(asynUser *asyn, T* value, size_t nElements,
     counter = 0;
     mode = 1;
     do {
-        status = doRegisterIO(ADDRESS_SYSTEM_OPERATING_STATE, COMMAND_READ, 
-                              &mode);
+        status = readRegister(ADDRESS_SYSTEM_OPERATING_STATE, &mode);
         if (status != asynSuccess) {
             LOG("could not read system state");
             return asynError;
