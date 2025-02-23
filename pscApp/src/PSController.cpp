@@ -14,14 +14,15 @@ PSController::PSController(const char* name, const char* ip_port)
     int status;
     this->ip_port = ip_port;
     std::string udp_host = std::string(ip_port) + " UDP";
+    std::string asyn_port = std::string(ip_port) + "_UDP";
 
-    status = drvAsynIPPortConfigure("UDP", udp_host.c_str(), 1, 0, 0);
+    status = drvAsynIPPortConfigure(asyn_port.c_str(), udp_host.c_str(), 1, 0, 0);
     if (status != asynSuccess) {
         cout << "Could not create port " << udp_host << endl;
         return;
     }
 
-    status = pasynOctetSyncIO->connect("UDP", 1, &this->registerIO, NULL);
+    status = pasynOctetSyncIO->connect(asyn_port.c_str(), 1, &this->registerIO, NULL);
     if(status != asynSuccess) {
         cout << "Could not connect to port " << udp_host << endl;
         return;
@@ -177,7 +178,9 @@ asynStatus PSController::readArray(asynUser *asyn, T* value, size_t nElements,
         }
 
         memcpy(&value[i], &temp, sizeof(u32));
+        printf("%s:%d: uploaded %d words \r", __func__, __LINE__, i + 1);
     }
+    printf("\n");
     LOG("upload completed.");
 
     // End data transfer.
