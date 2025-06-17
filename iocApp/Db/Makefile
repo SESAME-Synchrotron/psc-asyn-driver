@@ -11,7 +11,11 @@ include $(TOP)/configure/CONFIG
 # Create and install (or just install) into <top>/db
 # databases, templates, substitutions like this
 DB += correctors.db
-DB += optics.db
+# DB += optics.db
+DB += optics-q1.db
+DB += optics-q2.db
+DB += optics-q3.db
+DB += optics-q4.db
 
 #----------------------------------------------------
 # If <anyname>.db template is not named <anyname>*.template add

@@ -1,0 +1,24 @@
+file "optics.template" {
+pattern {GATEWAY    CHANNEL     PS      ALIAS          DEVICE}
+
+# Quadrant 1
+		{0          0           1       SRC01-PS-QF1   C01-QF1}
+		{0          1           1       SRC01-PS-QD1   C01-QD1}
+		{0          2           1       SRC01-PS-QF2   C01-QF2}
+		{0          3           1       SRC01-PS-QD2   C01-QD2}
+
+		{0          4           1       SRC02-PS-QF1   C02-QF1}
+		{0          5           1       SRC02-PS-QD1   C02-QD1}
+		{0          6           1       SRC02-PS-QF2   C02-QF2}
+		{0          7           1       SRC02-PS-QD2   C02-QD2}
+
+		{0          8           1       SRC03-PS-QF1   C03-QF1}
+		{0          9           1       SRC03-PS-QD1   C03-QD1}
+		{0          10          1       SRC03-PS-QF2   C03-QF2}
+		{0          11          1       SRC03-PS-QD2   C03-QD2}
+
+		{0          12          1       SRC04-PS-QF1   C04-QF1}
+		{0          13          1       SRC04-PS-QD1   C04-QD1}
+		{0          14          1       SRC04-PS-QF2   C04-QF2}
+		{0          15          1       SRC04-PS-QD2   C04-QD2}
+}
