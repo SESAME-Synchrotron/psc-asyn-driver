@@ -3,7 +3,7 @@
 dbLoadDatabase "dbd/ioc.dbd"
 ioc_registerRecordDeviceDriver pdbbase
 
-< q1.cmd
+< cmd/q1.cmd
 
 iocInit
 

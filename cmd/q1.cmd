@@ -1,5 +1,3 @@
-#!bin/linux-x86_64/ioc
-
 dbLoadRecords("db/optics-q1.db")
 
 PSCConfigure("C01-QF1", "10.2.2.73:9322")
