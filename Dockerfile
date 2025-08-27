@@ -28,6 +28,7 @@ COPY --from=modules /opt/epics/base/lib/linux-x86_64/libCom.so.7.0.8      /opt/e
 # EPICS support modules.
 COPY --from=modules /opt/epics/support/asyn/lib/linux-x86_64/libasyn.so.4.44           /usr/lib64/
 COPY --from=modules /opt/epics/support/iocstats/lib/linux-x86_64/libdevIocStats.so.3.1 /usr/lib64/
+COPY --from=modules /opt/epics/support/asyn/db/asynRecord.db       /ioc/db/
 
 # OS.
 COPY --from=modules /lib64/libstdc++.so.6          /lib64/

@@ -14,7 +14,7 @@ PSController::PSController(const char* name, const char* ip_port)
     int status;
     this->ip_port = ip_port;
     std::string udp_host = std::string(ip_port) + " UDP";
-    std::string asyn_port = std::string(ip_port) + "_UDP";
+    std::string asyn_port = std::string(name) + "_UDP";
 
     status = drvAsynIPPortConfigure(asyn_port.c_str(), udp_host.c_str(), 1, 0, 0);
     if (status != asynSuccess) {
