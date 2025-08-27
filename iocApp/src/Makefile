@@ -17,8 +17,9 @@ ioc_DBD += base.dbd
 ioc_DBD += asyn.dbd
 ioc_DBD += drvAsynIPPort.dbd
 ioc_DBD += psc.dbd
+ioc_DBD += iocAdmin.dbd
 
-ioc_LIBS += asyn psc
+ioc_LIBS += devIocStats asyn psc
 
 # ioc_registerRecordDeviceDriver.cpp derives from ioc.dbd
 ioc_SRCS += ioc_registerRecordDeviceDriver.cpp

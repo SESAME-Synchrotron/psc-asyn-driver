@@ -17,6 +17,8 @@ DB += optics-q2.db
 DB += optics-q3.db
 DB += optics-q4.db
 
+DB_INSTALLS += $(IOCSTATS)/db/iocAdminSoft.db
+
 #----------------------------------------------------
 # If <anyname>.db template is not named <anyname>*.template add
 # <anyname>_template = <templatename>
