@@ -1,3 +1,13 @@
+
+HOST = registry.docker.com
+NAME = sr-ps-q1
+
+RUN_FLAGS += --interactive
+RUN_FLAGS += --tty
+RUN_FLAGS += --detach
+RUN_FLAGS += --network host
+RUN_FLAGS += --name $(NAME)
+
 # Makefile at top of application tree
 TOP = .
 include $(TOP)/configure/CONFIG
@@ -29,3 +39,13 @@ iocBoot_DEPEND_DIRS += $(filter %App,$(DIRS))
 # Add any additional dependency rules here:
 
 include $(TOP)/configure/RULES_TOP
+
+docker:
+	docker build -t registry.docker.com/$(NAME) .
+
+push: docker
+	docker push registry.docker.com/$(NAME)
+
+run: docker
+	@docker run $(RUN_FLAGS) $(HOST)/$(NAME)
+

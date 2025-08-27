@@ -24,7 +24,7 @@
 
 # Variables and paths to dependent modules:
 ASYN=/opt/epics/support/asyn
-
+IOCSTATS = /opt/epics/support/iocstats
 # EPICS_BASE should appear last so earlier modules can override stuff:
 EPICS_BASE = /opt/epics/base
 

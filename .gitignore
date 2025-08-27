@@ -5,4 +5,5 @@ dbd/
 O.Common/
 O.linux-x86*/
 envPaths
-
+.vscode*
+.ioc*
