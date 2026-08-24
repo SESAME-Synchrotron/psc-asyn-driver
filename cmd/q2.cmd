@@ -1,3 +1,8 @@
+#!../../bin/linux-x86_64/ioc
+
+dbLoadDatabase "dbd/ioc.dbd"
+ioc_registerRecordDeviceDriver pdbbase
+
 dbLoadRecords("db/optics-q2.db")
 
 PSCConfigure("C05-QF1", "10.2.2.89:9322")
@@ -19,4 +24,6 @@ PSCConfigure("C08-QF1", "10.2.2.101:9322")
 PSCConfigure("C08-QD1", "10.2.2.102:9322")
 PSCConfigure("C08-QF2", "10.2.2.103:9322")
 PSCConfigure("C08-QD2", "10.2.2.104:9322")
+
+iocInit
 
