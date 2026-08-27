@@ -1,6 +1,6 @@
 
 HOST = registry.docker.com
-NAME = sr-ps-q1
+NAME = sr-ps-q$(Q)
 
 RUN_FLAGS += --interactive
 RUN_FLAGS += --tty
@@ -41,7 +41,7 @@ iocBoot_DEPEND_DIRS += $(filter %App,$(DIRS))
 include $(TOP)/configure/RULES_TOP
 
 docker:
-	docker build -t registry.docker.com/$(NAME) .
+	docker build -t registry.docker.com/$(NAME) -f cmd/q$(Q)/Dockerfile .
 
 push: docker
 	docker push registry.docker.com/$(NAME)
